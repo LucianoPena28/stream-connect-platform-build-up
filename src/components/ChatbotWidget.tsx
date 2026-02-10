@@ -1,13 +1,76 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Loader2 } from 'lucide-react';
+import { MessageCircle, X, Send, Loader2, Tv, Music, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
 
 interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
+}
+
+const SERVICE_CARDS = [
+  { name: 'Netflix Profile', price: '$10 BZD/mo', icon: Tv, color: 'bg-netflix text-netflix-foreground', link: '/services' },
+  { name: 'Netflix All 4 Profiles', price: '$30 BZD/mo', icon: Tv, color: 'bg-netflix text-netflix-foreground', link: '/services' },
+  { name: 'Spotify Individual', price: '$20 BZD/mo', icon: Music, color: 'bg-spotify text-spotify-foreground', link: '/services' },
+  { name: 'Spotify Family', price: '$30 BZD/mo', icon: Music, color: 'bg-spotify text-spotify-foreground', link: '/services' },
+];
+
+function detectServiceCards(content: string): typeof SERVICE_CARDS {
+  const lower = content.toLowerCase();
+  const matched: typeof SERVICE_CARDS = [];
+  if (lower.includes('netflix profile') && !lower.includes('all 4')) matched.push(SERVICE_CARDS[0]);
+  if (lower.includes('all 4 profiles') || lower.includes('netflix all')) matched.push(SERVICE_CARDS[1]);
+  if (lower.includes('spotify individual')) matched.push(SERVICE_CARDS[2]);
+  if (lower.includes('spotify family')) matched.push(SERVICE_CARDS[3]);
+  // If mentions plans broadly, show all
+  if (matched.length === 0 && (lower.includes('plans available') || lower.includes('following plans') || lower.includes('available plans'))) {
+    return SERVICE_CARDS;
+  }
+  return matched;
+}
+
+function AssistantMessage({ content }: { content: string }) {
+  const cards = detectServiceCards(content);
+  // Strip markdown bullet items that match service names to avoid duplication
+  let cleanContent = content;
+  if (cards.length > 0) {
+    cleanContent = content
+      .split('\n')
+      .filter(line => {
+        const l = line.toLowerCase();
+        return !cards.some(c => l.includes(c.name.toLowerCase()) && (l.startsWith('*') || l.startsWith('-')));
+      })
+      .join('\n')
+      .replace(/\n{3,}/g, '\n\n');
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="prose prose-sm dark:prose-invert max-w-none text-sm [&_p]:mb-1 [&_p:last-child]:mb-0">
+        <ReactMarkdown>{cleanContent}</ReactMarkdown>
+      </div>
+      {cards.length > 0 && (
+        <div className="grid gap-1.5 pt-1">
+          {cards.map(card => (
+            <Link key={card.name} to={card.link} className="block">
+              <div className={`${card.color} rounded-lg px-3 py-2 flex items-center gap-2.5 hover:opacity-90 transition-opacity cursor-pointer`}>
+                <card.icon className="h-4 w-4 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold leading-tight">{card.name}</p>
+                  <p className="text-[10px] opacity-80">{card.price}</p>
+                </div>
+                <ExternalLink className="h-3 w-3 opacity-60 flex-shrink-0" />
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function ChatbotWidget() {
@@ -80,12 +143,16 @@ export function ChatbotWidget() {
             <div className="flex-1 overflow-y-auto p-3 space-y-3 min-h-[200px]">
               {messages.map((msg) => (
                 <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm ${
+                  <div className={`max-w-[85%] px-3 py-2 rounded-2xl ${
                     msg.role === 'user'
-                      ? 'bg-primary text-primary-foreground rounded-br-md'
+                      ? 'bg-primary text-primary-foreground rounded-br-md text-sm'
                       : 'bg-muted text-foreground rounded-bl-md'
                   }`}>
-                    {msg.content}
+                    {msg.role === 'assistant' ? (
+                      <AssistantMessage content={msg.content} />
+                    ) : (
+                      msg.content
+                    )}
                   </div>
                 </div>
               ))}

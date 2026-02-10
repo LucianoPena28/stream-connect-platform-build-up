@@ -43,7 +43,7 @@ export default function Index() {
                 <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 font-semibold">
                   <Link to="/services">View Plans</Link>
                 </Button>
-                <Button asChild size="lg" variant="outline" className="rounded-full px-8 font-semibold border-white/30 text-white hover:bg-white/10">
+                <Button asChild size="lg" className="rounded-full px-8 font-semibold bg-white text-black hover:bg-white/90 shadow-lg">
                   <Link to="/contact">Message Us</Link>
                 </Button>
               </div>
