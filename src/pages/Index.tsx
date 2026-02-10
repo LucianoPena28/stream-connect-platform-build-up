@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Shield, Headphones, CreditCard, Zap, Tv, Music } from 'lucide-react';
 import { motion } from 'framer-motion';
+import heroBg from '@/assets/hero-bg.mp4';
 
 const fadeUp = {
   initial: { opacity: 0, y: 30 },
@@ -14,22 +15,35 @@ export default function Index() {
   return (
     <main>
       {/* Hero */}
-      <section className="gradient-hero py-16 md:py-24">
-        <div className="container">
+      <section className="relative min-h-[85vh] flex items-center overflow-hidden">
+        {/* Background video */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src={heroBg} type="video/mp4" />
+        </video>
+        {/* Dark overlay for readability */}
+        <div className="absolute inset-0 bg-black/60" />
+
+        <div className="container relative z-10">
           <div className="grid md:grid-cols-2 gap-10 items-center">
             <motion.div {...fadeUp}>
-              <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-4">
+              <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-4 text-white">
                 Streaming & Music<br />
-                <span className="text-foreground/80">Accounts</span>
+                <span className="text-white/70">Accounts</span>
               </h1>
-              <p className="text-lg text-muted-foreground mb-8 max-w-lg">
+              <p className="text-lg text-white/70 mb-8 max-w-lg">
                 Get premium Netflix and Spotify plans at great monthly prices. Based in Belize, serving you with local payment options.
               </p>
               <div className="flex flex-wrap gap-3">
-                <Button asChild size="lg" className="bg-foreground text-background hover:bg-foreground/90 rounded-full px-8 font-semibold">
+                <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 font-semibold">
                   <Link to="/services">View Plans</Link>
                 </Button>
-                <Button asChild size="lg" variant="outline" className="rounded-full px-8 font-semibold border-foreground/30">
+                <Button asChild size="lg" variant="outline" className="rounded-full px-8 font-semibold border-white/30 text-white hover:bg-white/10">
                   <Link to="/contact">Message Us</Link>
                 </Button>
               </div>
@@ -37,28 +51,32 @@ export default function Index() {
 
             <motion.div {...fadeUp} transition={{ delay: 0.2, duration: 0.5 }} className="space-y-4">
               {/* Flyer cards */}
-              <Card className="bg-netflix text-netflix-foreground border-0 shadow-xl overflow-hidden">
-                <CardContent className="p-5 flex items-center gap-4">
-                  <Tv className="h-10 w-10 flex-shrink-0" />
-                  <div>
-                    <h3 className="font-display font-bold text-lg">Netflix accounts available</h3>
-                    <p className="text-sm opacity-90">$10 BZD per profile or $30 BZD for all 4 monthly</p>
-                  </div>
-                </CardContent>
-              </Card>
+              <Link to="/services">
+                <Card className="bg-netflix text-netflix-foreground border-0 shadow-xl overflow-hidden hover:scale-[1.02] transition-transform cursor-pointer">
+                  <CardContent className="p-5 flex items-center gap-4">
+                    <Tv className="h-10 w-10 flex-shrink-0" />
+                    <div>
+                      <h3 className="font-display font-bold text-lg">Netflix accounts available</h3>
+                      <p className="text-sm opacity-90">$10 BZD per profile or $30 BZD for all 4 monthly</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
 
-              <Card className="bg-spotify text-spotify-foreground border-0 shadow-xl overflow-hidden">
-                <CardContent className="p-5 flex items-center gap-4">
-                  <Music className="h-10 w-10 flex-shrink-0" />
-                  <div>
-                    <h3 className="font-display font-bold text-lg">Spotify plans</h3>
-                    <p className="text-sm opacity-90">Individual: $20 BZD or Family: $30 BZD monthly</p>
-                  </div>
-                </CardContent>
-              </Card>
+              <Link to="/services">
+                <Card className="bg-spotify text-spotify-foreground border-0 shadow-xl overflow-hidden hover:scale-[1.02] transition-transform cursor-pointer mt-4">
+                  <CardContent className="p-5 flex items-center gap-4">
+                    <Music className="h-10 w-10 flex-shrink-0" />
+                    <div>
+                      <h3 className="font-display font-bold text-lg">Spotify plans</h3>
+                      <p className="text-sm opacity-90">Individual: $20 BZD or Family: $30 BZD monthly</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
 
-              <p className="text-sm text-muted-foreground pl-2">
-                Need another app? <Link to="/contact" className="font-semibold underline">Hit us up for a quote</Link>.
+              <p className="text-sm text-white/60 pl-2">
+                Need another app? <Link to="/contact" className="font-semibold underline text-white/80">Hit us up for a quote</Link>.
                 We also do online orders if you need something.
               </p>
             </motion.div>
