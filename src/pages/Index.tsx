@@ -132,11 +132,11 @@ export default function Index() {
       </section>
 
       {/* CTA */}
-      <section className="py-16 bg-foreground text-background">
+      <section className="py-16 bg-primary text-primary-foreground">
         <div className="container text-center">
           <h2 className="font-display text-3xl font-bold mb-4">Ready to Stream?</h2>
-          <p className="text-background/70 mb-8 max-w-md mx-auto">Browse our plans and get started today. Local payments accepted.</p>
-          <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-10 font-semibold">
+          <p className="text-primary-foreground/70 mb-8 max-w-md mx-auto">Browse our plans and get started today. Local payments accepted.</p>
+          <Button asChild size="lg" className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 rounded-full px-10 font-semibold">
             <Link to="/services">Browse Plans</Link>
           </Button>
         </div>
