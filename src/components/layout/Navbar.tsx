@@ -1,8 +1,9 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, User } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { CartDrawer } from '@/components/CartDrawer';
+import { useAuth } from '@/hooks/useAuth';
 
 const navLinks = [
   { to: '/', label: 'Home' },
@@ -13,6 +14,7 @@ const navLinks = [
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+  const { user } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 bg-primary/90 backdrop-blur-md shadow-sm">
@@ -39,6 +41,11 @@ export function Navbar() {
             </Link>
           ))}
           <CartDrawer />
+          <Link to={user ? '/account' : '/account/login'}>
+            <Button variant="ghost" size="icon" className="text-primary-foreground hover:text-primary-foreground/80">
+              <User className="h-5 w-5" />
+            </Button>
+          </Link>
         </nav>
 
         {/* Mobile */}
@@ -62,6 +69,13 @@ export function Navbar() {
               {link.label}
             </Link>
           ))}
+          <Link
+            to={user ? '/account' : '/account/login'}
+            onClick={() => setMobileOpen(false)}
+            className="block py-2 text-sm font-semibold text-primary-foreground"
+          >
+            {user ? 'My Account' : 'Sign In'}
+          </Link>
         </nav>
       )}
     </header>

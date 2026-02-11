@@ -35,6 +35,33 @@ export type Database = {
         }
         Relationships: []
       }
+      backup_codes: {
+        Row: {
+          code_hash: string
+          created_at: string | null
+          id: string
+          is_used: boolean | null
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          code_hash: string
+          created_at?: string | null
+          id?: string
+          is_used?: boolean | null
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          code_hash?: string
+          created_at?: string | null
+          id?: string
+          is_used?: boolean | null
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       chat_messages: {
         Row: {
           content: string
@@ -305,6 +332,56 @@ export type Database = {
         }
         Relationships: []
       }
+      subscriptions: {
+        Row: {
+          billing_period: string | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          price_bzd: number
+          service_id: string | null
+          service_name: string
+          started_at: string | null
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          billing_period?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          price_bzd?: number
+          service_id?: string | null
+          service_name: string
+          started_at?: string | null
+          status?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          billing_period?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          price_bzd?: number
+          service_id?: string | null
+          service_name?: string
+          started_at?: string | null
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ticket_messages: {
         Row: {
           content: string
@@ -392,6 +469,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      totp_secrets: {
+        Row: {
+          created_at: string | null
+          encrypted_secret: string
+          id: string
+          is_enabled: boolean | null
+          updated_at: string | null
+          user_id: string
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          encrypted_secret: string
+          id?: string
+          is_enabled?: boolean | null
+          updated_at?: string | null
+          user_id: string
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          encrypted_secret?: string
+          id?: string
+          is_enabled?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+          verified_at?: string | null
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {

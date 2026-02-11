@@ -22,6 +22,10 @@ import AdminOrders from "./pages/admin/Orders";
 import AdminCustomers from "./pages/admin/Customers";
 import AdminTickets from "./pages/admin/Tickets";
 import AdminSettings from "./pages/admin/Settings";
+import AccountLogin from "./pages/account/Login";
+import AccountRegister from "./pages/account/Register";
+import AccountDashboard from "./pages/account/Dashboard";
+import AccountSecurity from "./pages/account/Security";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,6 +41,12 @@ function AppContent() {
         <Route path="/services" element={<><Navbar /><Services /><Footer /><ChatbotWidget /></>} />
         <Route path="/product/:handle" element={<><Navbar /><ProductDetail /><Footer /><ChatbotWidget /></>} />
         <Route path="/contact" element={<><Navbar /><Contact /><Footer /><ChatbotWidget /></>} />
+
+        {/* Customer account routes */}
+        <Route path="/account/login" element={<><Navbar /><AccountLogin /><Footer /></>} />
+        <Route path="/account/register" element={<><Navbar /><AccountRegister /><Footer /></>} />
+        <Route path="/account" element={<><Navbar /><AccountDashboard /><Footer /></>} />
+        <Route path="/account/security" element={<><Navbar /><AccountSecurity /><Footer /></>} />
 
         {/* Admin routes */}
         <Route path="/admin/login" element={<AdminLogin />} />
