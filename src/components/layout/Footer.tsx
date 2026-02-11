@@ -20,7 +20,7 @@ export function Footer() {
           <div>
             <h4 className="font-semibold mb-2">Contact</h4>
             <p className="text-sm text-background/70">WhatsApp: +501 6XX-XXXX</p>
-            <p className="text-sm text-background/70">Email: support@streamhub.bz</p>
+            <p className="text-sm text-background/70">Email: luciano.pena@streamhub.bz</p>
           </div>
         </div>
         <div className="mt-8 pt-4 border-t border-background/20 text-center text-xs text-background/50">
