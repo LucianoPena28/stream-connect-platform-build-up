@@ -35,7 +35,7 @@ export default function AccountLogin() {
             <User className="h-6 w-6 text-primary-foreground" />
           </div>
           <CardTitle className="font-display text-2xl">Welcome Back</CardTitle>
-          <CardDescription>Sign in to your StreamHub account</CardDescription>
+          <CardDescription>Sign in to your Stream Connect account</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">

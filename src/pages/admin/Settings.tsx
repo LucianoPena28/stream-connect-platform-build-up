@@ -4,14 +4,21 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Loader2, Save } from 'lucide-react';
+import { Loader2, Save, KeyRound } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 
 export default function AdminSettings() {
+  const { user } = useAuth();
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  // Password change
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [changingPassword, setChangingPassword] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -38,6 +45,20 @@ export default function AdminSettings() {
     }
   };
 
+  const handleChangePassword = async () => {
+    if (newPassword.length < 8) { toast.error('Password must be at least 8 characters'); return; }
+    if (newPassword !== confirmPassword) { toast.error('Passwords do not match'); return; }
+    setChangingPassword(true);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) toast.error(error.message);
+    else {
+      toast.success('Password changed successfully!', { position: 'top-center' });
+      setNewPassword('');
+      setConfirmPassword('');
+    }
+    setChangingPassword(false);
+  };
+
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin" /></div>;
 
   const update = (key: string, value: string) => setSettings(prev => ({ ...prev, [key]: value }));
@@ -52,16 +73,36 @@ export default function AdminSettings() {
       </div>
 
       <div className="grid gap-6">
+        {/* Change Password */}
+        <Card>
+          <CardHeader><CardTitle className="font-display text-lg flex items-center gap-2"><KeyRound className="w-5 h-5" />Change Password</CardTitle></CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <Label>New Password</Label>
+                <Input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Min. 8 characters" />
+              </div>
+              <div>
+                <Label>Confirm Password</Label>
+                <Input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="••••••••" />
+              </div>
+            </div>
+            <Button onClick={handleChangePassword} disabled={changingPassword} variant="outline">
+              {changingPassword ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Update Password'}
+            </Button>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader><CardTitle className="font-display text-lg">Contact Info</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div>
               <Label>WhatsApp Number</Label>
-              <Input value={settings.whatsapp_number || ''} onChange={e => update('whatsapp_number', e.target.value)} placeholder="+5016000000" />
+              <Input value={settings.whatsapp_number || ''} onChange={e => update('whatsapp_number', e.target.value)} placeholder="+501 613-9834" />
             </div>
             <div>
               <Label>Support Email</Label>
-              <Input value={settings.support_email || ''} onChange={e => update('support_email', e.target.value)} placeholder="support@streamhub.bz" />
+              <Input value={settings.support_email || ''} onChange={e => update('support_email', e.target.value)} placeholder="luciano.pena@streamhub.bz" />
             </div>
             <div>
               <Label>WhatsApp Default Message</Label>
@@ -107,7 +148,6 @@ export default function AdminSettings() {
                 <span className="text-xs px-2 py-1 rounded-full bg-spotify/20 text-spotify font-medium">Active</span>
               </div>
             </div>
-            {/* PCI Note: No card data is stored. Shopify handles PCI-compliant payment processing. */}
           </CardContent>
         </Card>
       </div>

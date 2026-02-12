@@ -4,8 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, Shield, ShieldCheck, ShieldOff, Copy, ArrowLeft, RefreshCw } from 'lucide-react';
+import { Loader2, Shield, ShieldCheck, ShieldOff, Copy, ArrowLeft, RefreshCw, KeyRound } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 export default function AccountSecurity() {
@@ -19,6 +20,11 @@ export default function AccountSecurity() {
   const [verifyCode, setVerifyCode] = useState('');
   const [backupCodes, setBackupCodes] = useState<string[]>([]);
   const [actionLoading, setActionLoading] = useState(false);
+
+  // Password change
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [changingPassword, setChangingPassword] = useState(false);
 
   const apiCall = async (action: string, code?: string) => {
     const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/totp-setup`, {
@@ -87,6 +93,20 @@ export default function AccountSecurity() {
     setActionLoading(false);
   };
 
+  const handleChangePassword = async () => {
+    if (newPassword.length < 8) { toast.error('Password must be at least 8 characters'); return; }
+    if (newPassword !== confirmPassword) { toast.error('Passwords do not match'); return; }
+    setChangingPassword(true);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) toast.error(error.message);
+    else {
+      toast.success('Password changed successfully!', { position: 'top-center' });
+      setNewPassword('');
+      setConfirmPassword('');
+    }
+    setChangingPassword(false);
+  };
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast.success('Copied!');
@@ -104,9 +124,34 @@ export default function AccountSecurity() {
         </Button>
 
         <h1 className="font-display text-3xl font-extrabold mb-2">Security Settings</h1>
-        <p className="text-muted-foreground mb-8">Manage two-factor authentication and backup codes.</p>
+        <p className="text-muted-foreground mb-8">Manage your password, two-factor authentication, and backup codes.</p>
 
         <div className="space-y-6">
+          {/* Change Password */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="font-display text-lg flex items-center gap-2">
+                <KeyRound className="w-5 h-5" />Change Password
+              </CardTitle>
+              <CardDescription>Update your account password.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <Label>New Password</Label>
+                  <Input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Min. 8 characters" />
+                </div>
+                <div>
+                  <Label>Confirm Password</Label>
+                  <Input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="••••••••" />
+                </div>
+              </div>
+              <Button onClick={handleChangePassword} disabled={changingPassword} variant="outline">
+                {changingPassword ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Update Password'}
+              </Button>
+            </CardContent>
+          </Card>
+
           {/* 2FA Status */}
           <Card>
             <CardHeader>

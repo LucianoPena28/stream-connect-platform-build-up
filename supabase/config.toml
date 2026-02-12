@@ -8,3 +8,9 @@ verify_jwt = false
 
 [functions.create-order]
 verify_jwt = false
+
+[functions.create-employee]
+verify_jwt = false
+
+[functions.totp-setup]
+verify_jwt = false

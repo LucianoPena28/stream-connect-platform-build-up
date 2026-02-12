@@ -46,7 +46,7 @@ export default function AccountRegister() {
             <UserPlus className="h-6 w-6 text-primary-foreground" />
           </div>
           <CardTitle className="font-display text-2xl">Create Account</CardTitle>
-          <CardDescription>Join StreamHub to manage your subscriptions</CardDescription>
+          <CardDescription>Join Stream Connect to manage your subscriptions</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
