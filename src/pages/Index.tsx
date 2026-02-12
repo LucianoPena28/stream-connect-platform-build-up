@@ -16,17 +16,9 @@ export default function Index() {
     <main>
       {/* Hero */}
       <section className="relative min-h-[85vh] flex items-center overflow-hidden">
-        {/* Background video */}
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover"
-        >
+        <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover">
           <source src={heroBg} type="video/mp4" />
         </video>
-        {/* Dark overlay for readability */}
         <div className="absolute inset-0 bg-black/60" />
 
         <div className="container relative z-10">
@@ -50,7 +42,6 @@ export default function Index() {
             </motion.div>
 
             <motion.div {...fadeUp} transition={{ delay: 0.2, duration: 0.5 }} className="space-y-4">
-              {/* Flyer cards */}
               <Link to="/services">
                 <Card className="bg-netflix text-netflix-foreground border-0 shadow-xl overflow-hidden hover:scale-[1.02] transition-transform cursor-pointer">
                   <CardContent className="p-5 flex items-center gap-4">
@@ -92,7 +83,7 @@ export default function Index() {
             {[
               { step: '1', title: 'Choose your plan', desc: 'Select Netflix, Spotify, or request a custom app.' },
               { step: '2', title: 'Add to cart', desc: 'Review your selections and quantities.' },
-              { step: '3', title: 'Checkout & pay', desc: 'Pay via Shopify, e-Kyash, DigiWallet, or bank transfer.' },
+              { step: '3', title: 'Choose payment & pay', desc: 'Pay via Credit Card, e-Kyash, DigiWallet, OneLink, or bank transfer.' },
             ].map((item) => (
               <Card key={item.step} className="text-center p-6 hover:shadow-lg transition-shadow">
                 <CardContent className="pt-0">
@@ -115,7 +106,7 @@ export default function Index() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               { icon: Shield, title: 'Trusted & Reliable', desc: 'Serving Belize with consistent, quality service.' },
-              { icon: CreditCard, title: 'Local Payments', desc: 'e-Kyash, DigiWallet, bank transfer — your choice.' },
+              { icon: CreditCard, title: 'Local Payments', desc: 'e-Kyash, DigiWallet, OneLink, bank transfer — your choice.' },
               { icon: Headphones, title: '24/7 Support', desc: 'WhatsApp, email, and AI chat always available.' },
               { icon: Zap, title: 'Instant Setup', desc: 'Account access delivered within hours.' },
             ].map((feature) => (

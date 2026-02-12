@@ -16,11 +16,13 @@ import Index from "./pages/Index";
 import Services from "./pages/Services";
 import ProductDetail from "./pages/ProductDetail";
 import Contact from "./pages/Contact";
+import Checkout from "./pages/Checkout";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminOrders from "./pages/admin/Orders";
 import AdminCustomers from "./pages/admin/Customers";
 import AdminTickets from "./pages/admin/Tickets";
+import AdminEmployees from "./pages/admin/Employees";
 import AdminSettings from "./pages/admin/Settings";
 import AccountLogin from "./pages/account/Login";
 import AccountRegister from "./pages/account/Register";
@@ -41,6 +43,7 @@ function AppContent() {
         <Route path="/services" element={<><Navbar /><Services /><Footer /><ChatbotWidget /></>} />
         <Route path="/product/:handle" element={<><Navbar /><ProductDetail /><Footer /><ChatbotWidget /></>} />
         <Route path="/contact" element={<><Navbar /><Contact /><Footer /><ChatbotWidget /></>} />
+        <Route path="/checkout" element={<><Navbar /><Checkout /><Footer /></>} />
 
         {/* Customer account routes */}
         <Route path="/account/login" element={<><Navbar /><AccountLogin /><Footer /></>} />
@@ -54,6 +57,7 @@ function AppContent() {
         <Route path="/admin/orders" element={<AdminLayout><AdminOrders /></AdminLayout>} />
         <Route path="/admin/customers" element={<AdminLayout><AdminCustomers /></AdminLayout>} />
         <Route path="/admin/tickets" element={<AdminLayout><AdminTickets /></AdminLayout>} />
+        <Route path="/admin/employees" element={<AdminLayout><AdminEmployees /></AdminLayout>} />
         <Route path="/admin/settings" element={<AdminLayout><AdminSettings /></AdminLayout>} />
 
         <Route path="*" element={<NotFound />} />

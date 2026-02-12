@@ -2,13 +2,15 @@ import { ReactNode } from 'react';
 import { Link, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { LayoutDashboard, ShoppingBag, Users, MessageSquare, Settings, LogOut, Loader2 } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Users, MessageSquare, Settings, LogOut, Loader2, UserCog } from 'lucide-react';
+import logo from '@/assets/logo.jpg';
 
 const navItems = [
   { to: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/admin/orders', icon: ShoppingBag, label: 'Orders' },
   { to: '/admin/customers', icon: Users, label: 'Customers' },
   { to: '/admin/tickets', icon: MessageSquare, label: 'Tickets' },
+  { to: '/admin/employees', icon: UserCog, label: 'Employees' },
   { to: '/admin/settings', icon: Settings, label: 'Settings' },
 ];
 
@@ -43,8 +45,8 @@ export function AdminLayout({ children }: { children: ReactNode }) {
       <aside className="w-64 bg-sidebar text-sidebar-foreground flex-shrink-0 hidden lg:flex flex-col">
         <div className="p-4 border-b border-sidebar-border">
           <Link to="/admin" className="flex items-center gap-2">
-            <span className="text-xl">🟡</span>
-            <span className="font-display font-bold text-sm">StreamHub Admin</span>
+            <img src={logo} alt="Stream Connect" className="h-8 w-8 rounded-full object-cover" />
+            <span className="font-display font-bold text-sm">Stream Connect Admin</span>
           </Link>
         </div>
         <nav className="flex-1 p-3 space-y-1">
@@ -73,7 +75,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
 
       {/* Mobile header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-sidebar text-sidebar-foreground px-4 py-3 flex items-center justify-between">
-        <span className="font-display font-bold text-sm">StreamHub Admin</span>
+        <span className="font-display font-bold text-sm">Stream Connect Admin</span>
         <div className="flex items-center gap-2">
           {navItems.map(item => (
             <Link key={item.to} to={item.to} className={`p-2 rounded-lg ${location.pathname === item.to ? 'bg-sidebar-accent' : ''}`}>

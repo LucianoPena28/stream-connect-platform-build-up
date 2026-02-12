@@ -1,9 +1,11 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, User } from 'lucide-react';
+import { Menu, X, User, Sun, Moon } from 'lucide-react';
 import { useState } from 'react';
+import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import { CartDrawer } from '@/components/CartDrawer';
 import { useAuth } from '@/hooks/useAuth';
+import logo from '@/assets/logo.jpg';
 
 const navLinks = [
   { to: '/', label: 'Home' },
@@ -15,15 +17,18 @@ export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   const { user } = useAuth();
+  const { theme, setTheme } = useTheme();
+
+  const toggleTheme = () => setTheme(theme === 'dark' ? 'light' : 'dark');
 
   return (
     <header className="sticky top-0 z-50 bg-primary/90 backdrop-blur-md shadow-sm">
       <div className="container flex items-center justify-between h-16">
         <Link to="/" className="flex items-center gap-2">
-          <span className="text-2xl">🟡</span>
+          <img src={logo} alt="Stream Connect logo" className="h-10 w-10 rounded-full object-cover" />
           <div>
-            <h1 className="text-lg font-display font-extrabold text-primary-foreground leading-tight">StreamHub</h1>
-            <p className="text-xs text-primary-foreground/70 hidden sm:block">Affordable streaming & music</p>
+            <h1 className="text-lg font-display font-extrabold text-primary-foreground leading-tight">Stream Connect</h1>
+            <p className="text-xs text-primary-foreground/70 hidden sm:block">Affordable Streaming & Music</p>
           </div>
         </Link>
 
@@ -41,6 +46,9 @@ export function Navbar() {
             </Link>
           ))}
           <CartDrawer />
+          <Button variant="ghost" size="icon" onClick={toggleTheme} className="text-primary-foreground hover:text-primary-foreground/80">
+            {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          </Button>
           <Link to={user ? '/account' : '/account/login'}>
             <Button variant="ghost" size="icon" className="text-primary-foreground hover:text-primary-foreground/80">
               <User className="h-5 w-5" />
@@ -51,6 +59,9 @@ export function Navbar() {
         {/* Mobile */}
         <div className="flex items-center gap-2 md:hidden">
           <CartDrawer />
+          <Button variant="ghost" size="icon" onClick={toggleTheme} className="text-primary-foreground">
+            {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </Button>
           <Button variant="ghost" size="icon" onClick={() => setMobileOpen(!mobileOpen)} className="text-primary-foreground">
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
