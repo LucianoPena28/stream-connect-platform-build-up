@@ -5,57 +5,43 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Loader2, Save, KeyRound } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
+import { settingsApi, authApi } from '@/lib/api';
 import { toast } from 'sonner';
 
 export default function AdminSettings() {
-  const { user } = useAuth();
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-
-  // Password change
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [changingPassword, setChangingPassword] = useState(false);
 
   useEffect(() => {
-    async function load() {
-      const { data } = await supabase.from('app_settings').select('key, value');
+    settingsApi.list().then(data => {
       const map: Record<string, string> = {};
-      (data || []).forEach(row => { map[row.key] = row.value || ''; });
+      data.forEach(row => { map[row.key] = row.value || ''; });
       setSettings(map);
-      setLoading(false);
-    }
-    load();
+    }).finally(() => setLoading(false));
   }, []);
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      for (const [key, value] of Object.entries(settings)) {
-        await supabase.from('app_settings').update({ value }).eq('key', key);
-      }
+      await settingsApi.save(settings);
       toast.success('Settings saved!', { position: 'top-center' });
-    } catch {
-      toast.error('Failed to save settings');
-    } finally {
-      setSaving(false);
-    }
+    } catch { toast.error('Failed to save settings'); }
+    finally { setSaving(false); }
   };
 
   const handleChangePassword = async () => {
     if (newPassword.length < 8) { toast.error('Password must be at least 8 characters'); return; }
     if (newPassword !== confirmPassword) { toast.error('Passwords do not match'); return; }
     setChangingPassword(true);
-    const { error } = await supabase.auth.updateUser({ password: newPassword });
-    if (error) toast.error(error.message);
-    else {
+    try {
+      await authApi.updatePassword(newPassword);
       toast.success('Password changed successfully!', { position: 'top-center' });
-      setNewPassword('');
-      setConfirmPassword('');
-    }
+      setNewPassword(''); setConfirmPassword('');
+    } catch (err: any) { toast.error(err.message); }
     setChangingPassword(false);
   };
 
@@ -73,19 +59,12 @@ export default function AdminSettings() {
       </div>
 
       <div className="grid gap-6">
-        {/* Change Password */}
         <Card>
           <CardHeader><CardTitle className="font-display text-lg flex items-center gap-2"><KeyRound className="w-5 h-5" />Change Password</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div className="grid sm:grid-cols-2 gap-4">
-              <div>
-                <Label>New Password</Label>
-                <Input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Min. 8 characters" />
-              </div>
-              <div>
-                <Label>Confirm Password</Label>
-                <Input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="••••••••" />
-              </div>
+              <div><Label>New Password</Label><Input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Min. 8 characters" /></div>
+              <div><Label>Confirm Password</Label><Input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="••••••••" /></div>
             </div>
             <Button onClick={handleChangePassword} disabled={changingPassword} variant="outline">
               {changingPassword ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Update Password'}
@@ -96,36 +75,18 @@ export default function AdminSettings() {
         <Card>
           <CardHeader><CardTitle className="font-display text-lg">Contact Info</CardTitle></CardHeader>
           <CardContent className="space-y-4">
-            <div>
-              <Label>WhatsApp Number</Label>
-              <Input value={settings.whatsapp_number || ''} onChange={e => update('whatsapp_number', e.target.value)} placeholder="+501 613-9834" />
-            </div>
-            <div>
-              <Label>Support Email</Label>
-              <Input value={settings.support_email || ''} onChange={e => update('support_email', e.target.value)} placeholder="luciano.pena@streamhub.bz" />
-            </div>
-            <div>
-              <Label>WhatsApp Default Message</Label>
-              <Input value={settings.whatsapp_default_message || ''} onChange={e => update('whatsapp_default_message', e.target.value)} />
-            </div>
+            <div><Label>WhatsApp Number</Label><Input value={settings.whatsapp_number || ''} onChange={e => update('whatsapp_number', e.target.value)} placeholder="+501 613-9834" /></div>
+            <div><Label>Support Email</Label><Input value={settings.support_email || ''} onChange={e => update('support_email', e.target.value)} placeholder="support@streamconnect.online" /></div>
+            <div><Label>WhatsApp Default Message</Label><Input value={settings.whatsapp_default_message || ''} onChange={e => update('whatsapp_default_message', e.target.value)} /></div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader><CardTitle className="font-display text-lg">Payment Instructions</CardTitle></CardHeader>
           <CardContent className="space-y-4">
-            <div>
-              <Label>e-Kyash Instructions</Label>
-              <Textarea value={settings.ekyash_instructions || ''} onChange={e => update('ekyash_instructions', e.target.value)} rows={2} />
-            </div>
-            <div>
-              <Label>DigiWallet Instructions</Label>
-              <Textarea value={settings.digiwallet_instructions || ''} onChange={e => update('digiwallet_instructions', e.target.value)} rows={2} />
-            </div>
-            <div>
-              <Label>Bank Transfer Instructions</Label>
-              <Textarea value={settings.bank_transfer_instructions || ''} onChange={e => update('bank_transfer_instructions', e.target.value)} rows={2} />
-            </div>
+            <div><Label>e-Kyash Instructions</Label><Textarea value={settings.ekyash_instructions || ''} onChange={e => update('ekyash_instructions', e.target.value)} rows={2} /></div>
+            <div><Label>DigiWallet Instructions</Label><Textarea value={settings.digiwallet_instructions || ''} onChange={e => update('digiwallet_instructions', e.target.value)} rows={2} /></div>
+            <div><Label>Bank Transfer Instructions</Label><Textarea value={settings.bank_transfer_instructions || ''} onChange={e => update('bank_transfer_instructions', e.target.value)} rows={2} /></div>
           </CardContent>
         </Card>
 
@@ -134,17 +95,7 @@ export default function AdminSettings() {
           <CardContent>
             <div className="space-y-3">
               <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                <div>
-                  <p className="font-medium text-sm">Shopify</p>
-                  <p className="text-xs text-muted-foreground">Connected via Lovable integration</p>
-                </div>
-                <span className="text-xs px-2 py-1 rounded-full bg-spotify/20 text-spotify font-medium">Active</span>
-              </div>
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                <div>
-                  <p className="font-medium text-sm">AI Chatbot</p>
-                  <p className="text-xs text-muted-foreground">Powered by Lovable AI</p>
-                </div>
+                <div><p className="font-medium text-sm">Shopify</p><p className="text-xs text-muted-foreground">Product catalog integration</p></div>
                 <span className="text-xs px-2 py-1 rounded-full bg-spotify/20 text-spotify font-medium">Active</span>
               </div>
             </div>

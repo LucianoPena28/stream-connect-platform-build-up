@@ -5,17 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, UserPlus, Trash2, Shield, ShieldCheck } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { employeesApi, type Employee } from '@/lib/api';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
-
-interface Employee {
-  user_id: string;
-  role: 'admin' | 'support';
-  email: string | null;
-  full_name: string | null;
-  created_at: string;
-}
 
 export default function AdminEmployees() {
   const { user, isAdmin } = useAuth();
@@ -30,86 +22,42 @@ export default function AdminEmployees() {
   useEffect(() => { loadEmployees(); }, []);
 
   const loadEmployees = async () => {
-    // Get all user roles
-    const { data: roles } = await supabase.from('user_roles').select('user_id, role, created_at');
-    if (!roles || roles.length === 0) { setLoading(false); return; }
-
-    // Get profile info for each
-    const userIds = roles.map(r => r.user_id);
-    const { data: profiles } = await supabase.from('profiles').select('user_id, full_name, email').in('user_id', userIds);
-
-    const merged: Employee[] = roles.map(r => {
-      const profile = profiles?.find(p => p.user_id === r.user_id);
-      return {
-        user_id: r.user_id,
-        role: r.role as 'admin' | 'support',
-        email: profile?.email || null,
-        full_name: profile?.full_name || null,
-        created_at: r.created_at,
-      };
-    });
-    setEmployees(merged);
+    try {
+      const data = await employeesApi.list();
+      setEmployees(data);
+    } catch { /* ignore */ }
     setLoading(false);
   };
 
   const handleAddEmployee = async () => {
-    if (!newEmail || !newPassword || !newName) {
-      toast.error('Please fill all fields');
-      return;
-    }
-    if (newPassword.length < 8) {
-      toast.error('Password must be at least 8 characters');
-      return;
-    }
-
+    if (!newEmail || !newPassword || !newName) { toast.error('Please fill all fields'); return; }
+    if (newPassword.length < 8) { toast.error('Password must be at least 8 characters'); return; }
     setAdding(true);
     try {
-      // Create the user via edge function
-      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-employee`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
-        },
-        body: JSON.stringify({ email: newEmail, password: newPassword, full_name: newName, role: newRole }),
-      });
-
-      const result = await res.json();
-      if (!res.ok) throw new Error(result.error || 'Failed to create employee');
-
+      await employeesApi.create({ email: newEmail, password: newPassword, full_name: newName, role: newRole });
       toast.success(`Employee ${newName} created successfully!`, { position: 'top-center' });
-      setNewEmail('');
-      setNewPassword('');
-      setNewName('');
-      setNewRole('support');
+      setNewEmail(''); setNewPassword(''); setNewName(''); setNewRole('support');
       await loadEmployees();
     } catch (error: any) {
       toast.error(error.message || 'Failed to create employee');
-    } finally {
-      setAdding(false);
-    }
+    } finally { setAdding(false); }
   };
 
   const handleRemoveRole = async (userId: string) => {
-    if (userId === user?.id) {
-      toast.error("You can't remove your own role");
-      return;
-    }
-    const { error } = await supabase.from('user_roles').delete().eq('user_id', userId);
-    if (error) toast.error('Failed to remove role');
-    else {
+    if (userId === user?.id) { toast.error("You can't remove your own role"); return; }
+    try {
+      await employeesApi.remove(userId);
       toast.success('Role removed', { position: 'top-center' });
       await loadEmployees();
-    }
+    } catch { toast.error('Failed to remove role'); }
   };
 
   const handleChangeRole = async (userId: string, role: 'admin' | 'support') => {
-    const { error } = await supabase.from('user_roles').update({ role }).eq('user_id', userId);
-    if (error) toast.error('Failed to update role');
-    else {
+    try {
+      await employeesApi.updateRole(userId, role);
       toast.success('Role updated', { position: 'top-center' });
       await loadEmployees();
-    }
+    } catch { toast.error('Failed to update role'); }
   };
 
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin" /></div>;
@@ -117,9 +65,7 @@ export default function AdminEmployees() {
   return (
     <div>
       <h1 className="font-display text-2xl font-bold mb-6">Employee Management</h1>
-
       <div className="grid gap-6">
-        {/* Add employee */}
         {isAdmin && (
           <Card>
             <CardHeader>
@@ -129,18 +75,9 @@ export default function AdminEmployees() {
             </CardHeader>
             <CardContent>
               <div className="grid sm:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <Label>Full Name</Label>
-                  <Input value={newName} onChange={e => setNewName(e.target.value)} placeholder="Employee name" />
-                </div>
-                <div>
-                  <Label>Email</Label>
-                  <Input type="email" value={newEmail} onChange={e => setNewEmail(e.target.value)} placeholder="employee@streamconnect.online" />
-                </div>
-                <div>
-                  <Label>Temporary Password</Label>
-                  <Input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Min. 8 characters" />
-                </div>
+                <div><Label>Full Name</Label><Input value={newName} onChange={e => setNewName(e.target.value)} placeholder="Employee name" /></div>
+                <div><Label>Email</Label><Input type="email" value={newEmail} onChange={e => setNewEmail(e.target.value)} placeholder="employee@streamconnect.online" /></div>
+                <div><Label>Temporary Password</Label><Input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Min. 8 characters" /></div>
                 <div>
                   <Label>Role</Label>
                   <Select value={newRole} onValueChange={(v: 'admin' | 'support') => setNewRole(v)}>
@@ -159,11 +96,8 @@ export default function AdminEmployees() {
           </Card>
         )}
 
-        {/* Employee list */}
         <Card>
-          <CardHeader>
-            <CardTitle className="font-display text-lg">Current Employees ({employees.length})</CardTitle>
-          </CardHeader>
+          <CardHeader><CardTitle className="font-display text-lg">Current Employees ({employees.length})</CardTitle></CardHeader>
           <CardContent>
             {employees.length === 0 ? (
               <p className="text-sm text-muted-foreground">No employees with assigned roles yet.</p>

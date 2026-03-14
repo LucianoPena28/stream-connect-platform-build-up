@@ -39,21 +39,14 @@ export default function AccountLogin() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="you@example.com" />
-            </div>
-            <div>
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required placeholder="••••••••" />
-            </div>
+            <div><Label htmlFor="email">Email</Label><Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="you@example.com" /></div>
+            <div><Label htmlFor="password">Password</Label><Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required placeholder="••••••••" /></div>
             <Button type="submit" disabled={loading} className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Sign In'}
             </Button>
           </form>
           <p className="text-center text-sm text-muted-foreground mt-4">
-            Don't have an account?{' '}
-            <Link to="/account/register" className="font-semibold text-primary hover:underline">Sign up</Link>
+            Don't have an account?{' '}<Link to="/account/register" className="font-semibold text-primary hover:underline">Sign up</Link>
           </p>
         </CardContent>
       </Card>

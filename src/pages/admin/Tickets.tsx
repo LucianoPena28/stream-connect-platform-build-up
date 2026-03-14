@@ -3,19 +3,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Loader2 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { ticketsApi, type Ticket } from '@/lib/api';
 import { toast } from 'sonner';
-
-interface Ticket {
-  id: string;
-  subject: string;
-  message: string | null;
-  customer_name: string | null;
-  customer_email: string | null;
-  status: string;
-  source: string | null;
-  created_at: string;
-}
 
 export default function AdminTickets() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -23,19 +12,23 @@ export default function AdminTickets() {
   const [statusFilter, setStatusFilter] = useState('all');
 
   const fetchTickets = async () => {
-    let query = supabase.from('tickets').select('*').order('created_at', { ascending: false });
-    if (statusFilter !== 'all') query = query.eq('status', statusFilter);
-    const { data } = await query;
-    setTickets(data || []);
+    try {
+      const data = await ticketsApi.list(statusFilter);
+      setTickets(data);
+    } catch { /* ignore */ }
     setLoading(false);
   };
 
   useEffect(() => { fetchTickets(); }, [statusFilter]);
 
   const updateStatus = async (id: string, status: string) => {
-    const { error } = await supabase.from('tickets').update({ status }).eq('id', id);
-    if (error) toast.error('Failed to update');
-    else { toast.success('Updated', { position: 'top-center' }); fetchTickets(); }
+    try {
+      await ticketsApi.updateStatus(id, status);
+      toast.success('Updated', { position: 'top-center' });
+      fetchTickets();
+    } catch {
+      toast.error('Failed to update');
+    }
   };
 
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin" /></div>;
@@ -45,9 +38,7 @@ export default function AdminTickets() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="font-display text-2xl font-bold">Tickets</h1>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-32">
-            <SelectValue />
-          </SelectTrigger>
+          <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All</SelectItem>
             <SelectItem value="open">Open</SelectItem>
@@ -84,9 +75,7 @@ export default function AdminTickets() {
                     <TableCell>
                       <span className={`text-xs px-2 py-1 rounded-full font-medium ${
                         ticket.status === 'open' ? 'bg-primary/30 text-primary-foreground' : 'bg-muted text-muted-foreground'
-                      }`}>
-                        {ticket.status}
-                      </span>
+                      }`}>{ticket.status}</span>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">{new Date(ticket.created_at).toLocaleDateString()}</TableCell>
                     <TableCell>
