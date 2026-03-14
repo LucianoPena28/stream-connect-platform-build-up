@@ -1,22 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Loader2 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { ordersApi, type Order } from '@/lib/api';
 import { toast } from 'sonner';
-
-interface Order {
-  id: string;
-  customer_name: string | null;
-  customer_email: string | null;
-  total_bzd: number;
-  status: string;
-  payment_method: string | null;
-  payment_status: string | null;
-  created_at: string;
-}
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -24,22 +12,22 @@ export default function AdminOrders() {
   const [statusFilter, setStatusFilter] = useState('all');
 
   const fetchOrders = async () => {
-    let query = supabase.from('orders').select('*').order('created_at', { ascending: false });
-    if (statusFilter !== 'all') query = query.eq('status', statusFilter);
-    const { data } = await query;
-    setOrders(data || []);
+    try {
+      const data = await ordersApi.list(statusFilter);
+      setOrders(data);
+    } catch { /* ignore */ }
     setLoading(false);
   };
 
   useEffect(() => { fetchOrders(); }, [statusFilter]);
 
   const updateStatus = async (orderId: string, newStatus: string) => {
-    const { error } = await supabase.from('orders').update({ status: newStatus }).eq('id', orderId);
-    if (error) {
-      toast.error('Failed to update status');
-    } else {
+    try {
+      await ordersApi.updateStatus(orderId, newStatus);
       toast.success('Order status updated', { position: 'top-center' });
       fetchOrders();
+    } catch {
+      toast.error('Failed to update status');
     }
   };
 
@@ -50,9 +38,7 @@ export default function AdminOrders() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="font-display text-2xl font-bold">Orders</h1>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-40">
-            <SelectValue placeholder="Filter status" />
-          </SelectTrigger>
+          <SelectTrigger className="w-40"><SelectValue placeholder="Filter status" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All</SelectItem>
             <SelectItem value="pending">Pending</SelectItem>
@@ -93,16 +79,12 @@ export default function AdminOrders() {
                         order.status === 'active' || order.status === 'paid' ? 'bg-spotify/20 text-spotify' :
                         order.status === 'pending' ? 'bg-primary/30 text-primary-foreground' :
                         'bg-destructive/20 text-destructive'
-                      }`}>
-                        {order.status}
-                      </span>
+                      }`}>{order.status}</span>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">{new Date(order.created_at).toLocaleDateString()}</TableCell>
                     <TableCell>
                       <Select value={order.status} onValueChange={(v) => updateStatus(order.id, v)}>
-                        <SelectTrigger className="w-28 h-8 text-xs">
-                          <SelectValue />
-                        </SelectTrigger>
+                        <SelectTrigger className="w-28 h-8 text-xs"><SelectValue /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="pending">Pending</SelectItem>
                           <SelectItem value="paid">Paid</SelectItem>

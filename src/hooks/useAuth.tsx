@@ -1,10 +1,8 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import type { User, Session } from '@supabase/supabase-js';
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
+import { authApi, type AuthUser } from '@/lib/api';
 
 interface AuthContextType {
-  user: User | null;
-  session: Session | null;
+  user: AuthUser | null;
   isLoading: boolean;
   isAdmin: boolean;
   isSupport: boolean;
@@ -16,77 +14,69 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isSupport, setIsSupport] = useState(false);
 
-  const checkRoles = async (userId: string) => {
-    try {
-      const { data } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', userId);
+  const isAdmin = user?.roles?.includes('admin') ?? false;
+  const isSupport = user?.roles?.includes('support') ?? false;
 
-      const roles = data?.map(r => r.role) || [];
-      setIsAdmin(roles.includes('admin'));
-      setIsSupport(roles.includes('support'));
-    } catch {
-      setIsAdmin(false);
-      setIsSupport(false);
-    }
-  };
-
+  // Restore session from localStorage on mount
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        // Use setTimeout to avoid Supabase deadlock during auth state change
-        setTimeout(() => checkRoles(session.user.id), 0);
-      } else {
-        setIsAdmin(false);
-        setIsSupport(false);
+    const token = localStorage.getItem('auth_token');
+    const savedUser = localStorage.getItem('auth_user');
+    if (token && savedUser) {
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('auth_user');
       }
+      // Verify token is still valid
+      authApi.me().then(u => {
+        setUser(u);
+        localStorage.setItem('auth_user', JSON.stringify(u));
+      }).catch(() => {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('auth_user');
+        setUser(null);
+      }).finally(() => setIsLoading(false));
+    } else {
       setIsLoading(false);
-    });
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        checkRoles(session.user.id);
-      }
-      setIsLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    }
   }, []);
 
-  const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return { error: error ? new Error(error.message) : null };
-  };
+  const signIn = useCallback(async (email: string, password: string) => {
+    try {
+      const { token, user } = await authApi.signIn(email, password);
+      localStorage.setItem('auth_token', token);
+      localStorage.setItem('auth_user', JSON.stringify(user));
+      setUser(user);
+      return { error: null };
+    } catch (err) {
+      return { error: err instanceof Error ? err : new Error('Login failed') };
+    }
+  }, []);
 
-  const signUp = async (email: string, password: string, fullName: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { full_name: fullName },
-        emailRedirectTo: window.location.origin,
-      },
-    });
-    return { error: error ? new Error(error.message) : null };
-  };
+  const signUp = useCallback(async (email: string, password: string, fullName: string) => {
+    try {
+      const { token, user } = await authApi.signUp(email, password, fullName);
+      localStorage.setItem('auth_token', token);
+      localStorage.setItem('auth_user', JSON.stringify(user));
+      setUser(user);
+      return { error: null };
+    } catch (err) {
+      return { error: err instanceof Error ? err : new Error('Registration failed') };
+    }
+  }, []);
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
-  };
+  const signOut = useCallback(async () => {
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_user');
+    setUser(null);
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ user, session, isLoading, isAdmin, isSupport, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, isLoading, isAdmin, isSupport, signIn, signUp, signOut }}>
       {children}
     </AuthContext.Provider>
   );
