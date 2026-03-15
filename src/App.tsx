@@ -23,6 +23,8 @@ import AdminOrders from "./pages/admin/Orders";
 import AdminCustomers from "./pages/admin/Customers";
 import AdminTickets from "./pages/admin/Tickets";
 import AdminEmployees from "./pages/admin/Employees";
+import AdminServicesManagement from "./pages/admin/ServicesManagement";
+import AdminApiConnections from "./pages/admin/ApiConnections";
 import AdminSettings from "./pages/admin/Settings";
 import AccountLogin from "./pages/account/Login";
 import AccountRegister from "./pages/account/Register";
