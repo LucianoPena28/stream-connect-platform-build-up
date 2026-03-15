@@ -7,7 +7,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <h3 className="font-display font-bold text-lg mb-2">Stream Connect</h3>
-            <p className="text-sm text-sidebar-foreground/70">Affordable Streaming & Music subscriptions in Belize.</p>
+            <p className="text-sm text-sidebar-foreground/70">Your Digital Services Hub</p>
           </div>
           <div>
             <h4 className="font-semibold mb-2">Quick Links</h4>
