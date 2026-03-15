@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 import { Link, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { LayoutDashboard, ShoppingBag, Users, MessageSquare, Settings, LogOut, Loader2, UserCog } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Users, MessageSquare, Settings, LogOut, Loader2, UserCog, Package, Plug } from 'lucide-react';
 import logo from '@/assets/logo.jpg';
 
 const navItems = [
@@ -10,7 +10,9 @@ const navItems = [
   { to: '/admin/orders', icon: ShoppingBag, label: 'Orders' },
   { to: '/admin/customers', icon: Users, label: 'Customers' },
   { to: '/admin/tickets', icon: MessageSquare, label: 'Tickets' },
+  { to: '/admin/services', icon: Package, label: 'Services' },
   { to: '/admin/employees', icon: UserCog, label: 'Employees' },
+  { to: '/admin/api', icon: Plug, label: 'API Connections' },
   { to: '/admin/settings', icon: Settings, label: 'Settings' },
 ];
 
