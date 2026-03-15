@@ -28,7 +28,7 @@ export function Navbar() {
           <img src={logo} alt="Stream Connect logo" className="h-10 w-10 rounded-full object-cover" />
           <div>
             <h1 className="text-lg font-display font-extrabold text-primary-foreground leading-tight">Stream Connect</h1>
-            <p className="text-xs text-primary-foreground/70 hidden sm:block">Affordable Streaming & Music</p>
+            <p className="text-xs text-primary-foreground/70 hidden sm:block">Your Digital Services Hub</p>
           </div>
         </Link>
 
