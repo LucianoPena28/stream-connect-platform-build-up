@@ -235,3 +235,28 @@ export const chatApi = {
   send: (message: string) =>
     request<{ reply: string }>('/chat', { method: 'POST', body: JSON.stringify({ message }) }),
 };
+
+// ─── Services (Admin CRUD) ───────────────────────────────────────────────────
+
+export interface Service {
+  id: string;
+  name: string;
+  description: string | null;
+  price_bzd: number;
+  category: string | null;
+  billing_period: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export const servicesApi = {
+  list: () => request<Service[]>('/services'),
+  create: (data: Partial<Service>) =>
+    request<{ id: string }>('/services', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id: string, data: Partial<Service>) =>
+    request('/services/' + id, { method: 'PUT', body: JSON.stringify(data) }),
+  remove: (id: string) =>
+    request('/services/' + id, { method: 'DELETE' }),
+};

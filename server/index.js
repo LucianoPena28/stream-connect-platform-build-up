@@ -33,6 +33,7 @@ app.use('/api/settings', require('./routes/settings'));
 app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/subscriptions', require('./routes/subscriptions'));
 app.use('/api/chat', require('./routes/chat'));
+app.use('/api/services', require('./routes/services'));
 
 // Health check
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
