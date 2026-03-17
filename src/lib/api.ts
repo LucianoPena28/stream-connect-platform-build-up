@@ -24,7 +24,7 @@ async function request<T = unknown>(
   if (res.status === 401) {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('auth_user');
-    window.location.href = '/account/login';
+    window.location.href = window.location.pathname.startsWith('/admin') ? '/admin/login' : '/account/login';
     throw new Error('Session expired');
   }
 
