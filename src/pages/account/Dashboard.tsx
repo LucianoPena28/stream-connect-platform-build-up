@@ -58,6 +58,7 @@ export default function AccountDashboard() {
             <p className="text-muted-foreground text-sm">{user?.email}</p>
           </div>
           <div className="flex gap-2">
+            <Button variant="outline" size="sm" asChild><Link to="/account/credentials"><KeyRound className="w-4 h-4 mr-1" />Credentials</Link></Button>
             <Button variant="outline" size="sm" asChild><Link to="/account/security"><Shield className="w-4 h-4 mr-1" />Security</Link></Button>
             <Button variant="ghost" size="sm" onClick={handleSignOut}><LogOut className="w-4 h-4 mr-1" />Sign Out</Button>
           </div>
