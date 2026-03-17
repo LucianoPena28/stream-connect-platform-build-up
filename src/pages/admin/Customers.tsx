@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Loader2, Search } from 'lucide-react';
 import { customersApi, type Customer } from '@/lib/api';
@@ -15,7 +16,7 @@ export default function AdminCustomers() {
   }, []);
 
   const filtered = customers.filter(c =>
-    c.name.toLowerCase().includes(search.toLowerCase()) ||
+    (c.name || '').toLowerCase().includes(search.toLowerCase()) ||
     (c.email || '').toLowerCase().includes(search.toLowerCase())
   );
 
@@ -38,17 +39,23 @@ export default function AdminCustomers() {
                 <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
-                  <TableHead>Phone</TableHead>
-                  <TableHead>Joined</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Joined Date</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filtered.map(customer => (
                   <TableRow key={customer.id}>
-                    <TableCell className="font-medium">{customer.name}</TableCell>
+                    <TableCell className="font-medium">{customer.name || '—'}</TableCell>
                     <TableCell className="text-sm">{customer.email || '—'}</TableCell>
-                    <TableCell className="text-sm">{customer.phone || '—'}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground">{new Date(customer.created_at).toLocaleDateString()}</TableCell>
+                    <TableCell>
+                      <Badge variant={customer.role === 'admin' ? 'default' : 'secondary'} className="capitalize">
+                        {customer.role || 'customer'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {new Date(customer.created_at).toLocaleDateString()}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
