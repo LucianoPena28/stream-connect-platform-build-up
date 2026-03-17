@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, Search, Plus, KeyRound, RotateCcw, Trash2, Copy, Eye, EyeOff, Edit2, Shield } from 'lucide-react';
+import { Loader2, Search, Plus, KeyRound, RotateCcw, Trash2, Copy, Eye, EyeOff, Edit2, Shield, Save } from 'lucide-react';
 import { customersApi, credentialsApi, servicesApi, type Customer, type ServiceCredential, type Service } from '@/lib/api';
 import { toast } from 'sonner';
 
