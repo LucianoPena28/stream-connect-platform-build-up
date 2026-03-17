@@ -137,11 +137,24 @@ export interface Customer {
   name: string;
   email: string | null;
   phone: string | null;
+  role: string | null;
   created_at: string;
 }
 
 export const customersApi = {
   list: () => request<Customer[]>('/customers'),
+};
+
+// ─── API Status ──────────────────────────────────────────────────────────────
+
+export interface ApiStatusResponse {
+  database: { status: string; url: string; db: string };
+  llm: { status: string; url: string; models: string[] };
+  backend: { status: string; port: string; version: string };
+}
+
+export const apiStatusApi = {
+  get: () => request<ApiStatusResponse>('/admin/api-status'),
 };
 
 // ─── Tickets ─────────────────────────────────────────────────────────────────
