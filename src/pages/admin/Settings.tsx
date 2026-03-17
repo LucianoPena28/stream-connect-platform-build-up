@@ -90,17 +90,6 @@ export default function AdminSettings() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader><CardTitle className="font-display text-lg">Integrations</CardTitle></CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                <div><p className="font-medium text-sm">Shopify</p><p className="text-xs text-muted-foreground">Product catalog integration</p></div>
-                <span className="text-xs px-2 py-1 rounded-full bg-spotify/20 text-spotify font-medium">Active</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

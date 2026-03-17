@@ -55,6 +55,9 @@ function AppContent() {
         <Route path="/account/register" element={<><Navbar /><AccountRegister /><Footer /></>} />
         <Route path="/account" element={<><Navbar /><AccountDashboard /><Footer /></>} />
         <Route path="/account/security" element={<><Navbar /><AccountSecurity /><Footer /></>} />
+        <Route path="/account/credentials" element={<><Navbar /><AccountCredentials /><Footer /></>} />
+        <Route path="/account/forgot-password" element={<><Navbar /><AccountForgotPassword /><Footer /></>} />
+        <Route path="/account/reset-password" element={<><Navbar /><AccountResetPassword /><Footer /></>} />
 
         {/* Admin routes */}
         <Route path="/admin/login" element={<AdminLogin />} />
