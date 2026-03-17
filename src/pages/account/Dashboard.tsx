@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, Shield, Package, Settings, LogOut, ArrowUpDown, Save } from 'lucide-react';
+import { Loader2, Shield, Package, Settings, LogOut, ArrowUpDown, Save, KeyRound } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { profilesApi, subscriptionsApi, type Profile, type Subscription } from '@/lib/api';
 import { toast } from 'sonner';
@@ -58,6 +58,7 @@ export default function AccountDashboard() {
             <p className="text-muted-foreground text-sm">{user?.email}</p>
           </div>
           <div className="flex gap-2">
+            <Button variant="outline" size="sm" asChild><Link to="/account/credentials"><KeyRound className="w-4 h-4 mr-1" />Credentials</Link></Button>
             <Button variant="outline" size="sm" asChild><Link to="/account/security"><Shield className="w-4 h-4 mr-1" />Security</Link></Button>
             <Button variant="ghost" size="sm" onClick={handleSignOut}><LogOut className="w-4 h-4 mr-1" />Sign Out</Button>
           </div>

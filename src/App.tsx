@@ -30,6 +30,9 @@ import AccountLogin from "./pages/account/Login";
 import AccountRegister from "./pages/account/Register";
 import AccountDashboard from "./pages/account/Dashboard";
 import AccountSecurity from "./pages/account/Security";
+import AccountCredentials from "./pages/account/Credentials";
+import AccountForgotPassword from "./pages/account/ForgotPassword";
+import AccountResetPassword from "./pages/account/ResetPassword";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -52,6 +55,9 @@ function AppContent() {
         <Route path="/account/register" element={<><Navbar /><AccountRegister /><Footer /></>} />
         <Route path="/account" element={<><Navbar /><AccountDashboard /><Footer /></>} />
         <Route path="/account/security" element={<><Navbar /><AccountSecurity /><Footer /></>} />
+        <Route path="/account/credentials" element={<><Navbar /><AccountCredentials /><Footer /></>} />
+        <Route path="/account/forgot-password" element={<><Navbar /><AccountForgotPassword /><Footer /></>} />
+        <Route path="/account/reset-password" element={<><Navbar /><AccountResetPassword /><Footer /></>} />
 
         {/* Admin routes */}
         <Route path="/admin/login" element={<AdminLogin />} />

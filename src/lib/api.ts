@@ -1,8 +1,6 @@
 /**
  * Central API client — all database/backend calls go through here.
  * Points to your Express API server (runs on Oracle Cloud alongside MySQL).
- *
- * Configure VITE_API_URL in .env to point to your API server.
  */
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
@@ -66,6 +64,18 @@ export const authApi = {
     request('/auth/update-password', {
       method: 'POST',
       body: JSON.stringify({ password }),
+    }),
+
+  forgotPassword: (email: string) =>
+    request('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    }),
+
+  resetPassword: (token: string, newPassword: string) =>
+    request('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ token, newPassword }),
     }),
 };
 
@@ -142,7 +152,51 @@ export interface Customer {
 }
 
 export const customersApi = {
-  list: () => request<Customer[]>('/customers'),
+  list: () => request<Customer[]>('/admin/customers'),
+  create: (data: { full_name: string; email: string; phone?: string; password: string }) =>
+    request<{ id: string; email: string; tempPassword: string }>('/admin/customers', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  sendReset: (id: string) =>
+    request<{ message: string }>(`/admin/customers/${id}/send-reset`, { method: 'POST' }),
+  delete: (id: string) =>
+    request(`/admin/customers/${id}`, { method: 'DELETE' }),
+};
+
+// ─── Service Credentials ─────────────────────────────────────────────────────
+
+export interface ServiceCredential {
+  id: string;
+  user_id: string;
+  service_id: string | null;
+  service_name: string;
+  username: string | null;
+  password: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export const credentialsApi = {
+  // Admin endpoints
+  listForCustomer: (customerId: string) =>
+    request<ServiceCredential[]>(`/admin/customers/${customerId}/credentials`),
+  createForCustomer: (customerId: string, data: Partial<ServiceCredential>) =>
+    request<ServiceCredential>(`/admin/customers/${customerId}/credentials`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  updateForCustomer: (customerId: string, credId: string, data: Partial<ServiceCredential>) =>
+    request<ServiceCredential>(`/admin/customers/${customerId}/credentials/${credId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+  deleteForCustomer: (customerId: string, credId: string) =>
+    request(`/admin/customers/${customerId}/credentials/${credId}`, { method: 'DELETE' }),
+
+  // Customer-facing endpoints
+  mine: () => request<ServiceCredential[]>('/account/credentials'),
 };
 
 // ─── API Status ──────────────────────────────────────────────────────────────
