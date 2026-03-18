@@ -102,7 +102,8 @@ export default function AdminApiConnections() {
     try {
       const res = await apiStatusApi.get();
       setTestResult({ status: res.llm.status, models: res.llm.models });
-      if (res.llm.status === 'connected') {
+      const isOnline = ['connected', 'online', 'running'].includes(res.llm.status.toLowerCase());
+      if (isOnline) {
         toast.success('LLM connection successful!');
       } else {
         toast.error('LLM connection failed');
