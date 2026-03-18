@@ -11,7 +11,7 @@ import { apiStatusApi, settingsApi, type ApiStatusResponse } from '@/lib/api';
 import { toast } from 'sonner';
 
 function StatusBadge({ status }: { status: string }) {
-  const isGood = ['connected', 'running'].includes(status.toLowerCase());
+  const isGood = ['connected', 'running', 'online'].includes(status.toLowerCase());
   return (
     <Badge variant={isGood ? 'default' : 'destructive'} className={isGood ? 'bg-emerald-600 hover:bg-emerald-700' : ''}>
       {status}
