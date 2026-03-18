@@ -214,7 +214,26 @@ interface ApiStatusRaw {
 }
 
 export const apiStatusApi = {
-  get: () => request<ApiStatusResponse>('/admin/api-status'),
+  get: async (): Promise<ApiStatusResponse> => {
+    const raw = await request<ApiStatusRaw>('/admin/api-status');
+    return {
+      database: {
+        status: raw.database.status,
+        url: raw.database.url || 'unknown',
+        db: raw.database.db || 'stream_connect',
+      },
+      llm: {
+        status: raw.llm.status,
+        url: raw.llm.endpoint || raw.llm.url || 'unknown',
+        models: raw.llm.availableModels || raw.llm.models || (raw.llm.model ? [raw.llm.model] : []),
+      },
+      backend: {
+        status: raw.backend.status,
+        port: raw.backend.port || '3000',
+        version: raw.backend.version || '1.0.0',
+      },
+    };
+  },
 };
 
 // ─── Tickets ─────────────────────────────────────────────────────────────────
