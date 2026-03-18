@@ -11,7 +11,7 @@ import { apiStatusApi, settingsApi, type ApiStatusResponse } from '@/lib/api';
 import { toast } from 'sonner';
 
 function StatusBadge({ status }: { status: string }) {
-  const isGood = ['connected', 'running'].includes(status.toLowerCase());
+  const isGood = ['connected', 'running', 'online'].includes(status.toLowerCase());
   return (
     <Badge variant={isGood ? 'default' : 'destructive'} className={isGood ? 'bg-emerald-600 hover:bg-emerald-700' : ''}>
       {status}
@@ -66,16 +66,18 @@ export default function AdminApiConnections() {
       const data = await settingsApi.list();
       const map: Record<string, string> = {};
       data.forEach(row => { map[row.key] = row.value || ''; });
-      if (map.llm_config) {
+      // Primary key: llmconfig (no underscore, matches DB)
+      const llmRaw = map['llmconfig'] || map['llm_config'];
+      if (llmRaw) {
         try {
-          const parsed = JSON.parse(map.llm_config);
+          const parsed = JSON.parse(llmRaw);
           setConfig(prev => ({ ...prev, ...parsed }));
         } catch { /* use defaults */ }
       }
       // Also check individual keys for backwards compat
-      if (map.llm_endpoint && !map.llm_config) setConfig(prev => ({ ...prev, endpoint: map.llm_endpoint }));
-      if (map.llm_model && !map.llm_config) setConfig(prev => ({ ...prev, model: map.llm_model }));
-      if (map.llm_system_prompt && !map.llm_config) setConfig(prev => ({ ...prev, systemPrompt: map.llm_system_prompt }));
+      if (!llmRaw && map.llm_endpoint) setConfig(prev => ({ ...prev, endpoint: map.llm_endpoint }));
+      if (!llmRaw && map.llm_model) setConfig(prev => ({ ...prev, model: map.llm_model }));
+      if (!llmRaw && map.llm_system_prompt) setConfig(prev => ({ ...prev, systemPrompt: map.llm_system_prompt }));
     } catch { /* use defaults */ }
     setConfigLoading(false);
   };
@@ -88,7 +90,7 @@ export default function AdminApiConnections() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await settingsApi.save({ llm_config: JSON.stringify(config) });
+      await settingsApi.save({ llmconfig: JSON.stringify(config) });
       toast.success('LLM configuration saved!', { position: 'top-center' });
     } catch { toast.error('Failed to save'); }
     setSaving(false);
@@ -100,7 +102,8 @@ export default function AdminApiConnections() {
     try {
       const res = await apiStatusApi.get();
       setTestResult({ status: res.llm.status, models: res.llm.models });
-      if (res.llm.status === 'connected') {
+      const isOnline = ['connected', 'online', 'running'].includes(res.llm.status.toLowerCase());
+      if (isOnline) {
         toast.success('LLM connection successful!');
       } else {
         toast.error('LLM connection failed');
@@ -224,8 +227,8 @@ export default function AdminApiConnections() {
       </div>
 
       {testResult && (
-        <div className={`mb-4 p-3 rounded-lg border text-sm ${testResult.status === 'connected' ? 'bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-950 dark:border-emerald-800 dark:text-emerald-200' : 'bg-destructive/10 border-destructive/30 text-destructive'}`}>
-          {testResult.status === 'connected'
+        <div className={`mb-4 p-3 rounded-lg border text-sm ${['connected','online','running'].includes(testResult.status.toLowerCase()) ? 'bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-950 dark:border-emerald-800 dark:text-emerald-200' : 'bg-destructive/10 border-destructive/30 text-destructive'}`}>
+          {['connected','online','running'].includes(testResult.status.toLowerCase())
             ? `✓ Connected — Models available: ${testResult.models.join(', ') || 'none'}`
             : '✗ Connection failed — check your endpoint URL and ensure the LLM server is running'}
         </div>

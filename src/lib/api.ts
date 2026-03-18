@@ -207,8 +207,33 @@ export interface ApiStatusResponse {
   backend: { status: string; port: string; version: string };
 }
 
+interface ApiStatusRaw {
+  database: { status: string; url?: string; db?: string };
+  llm: { status: string; endpoint?: string; url?: string; availableModels?: string[]; models?: string[]; model?: string };
+  backend: { status: string; port?: string; version?: string };
+}
+
 export const apiStatusApi = {
-  get: () => request<ApiStatusResponse>('/admin/api-status'),
+  get: async (): Promise<ApiStatusResponse> => {
+    const raw = await request<ApiStatusRaw>('/admin/api-status');
+    return {
+      database: {
+        status: raw.database.status,
+        url: raw.database.url || 'unknown',
+        db: raw.database.db || 'stream_connect',
+      },
+      llm: {
+        status: raw.llm.status,
+        url: raw.llm.endpoint || raw.llm.url || 'unknown',
+        models: raw.llm.availableModels || raw.llm.models || (raw.llm.model ? [raw.llm.model] : []),
+      },
+      backend: {
+        status: raw.backend.status,
+        port: raw.backend.port || '3000',
+        version: raw.backend.version || '1.0.0',
+      },
+    };
+  },
 };
 
 // ─── Tickets ─────────────────────────────────────────────────────────────────
@@ -256,9 +281,9 @@ export const employeesApi = {
 // ─── App Settings ────────────────────────────────────────────────────────────
 
 export const settingsApi = {
-  list: () => request<Array<{ key: string; value: string | null }>>('/settings'),
+  list: () => request<Array<{ key: string; value: string | null }>>('/admin/settings'),
   save: (settings: Record<string, string>) =>
-    request('/settings', { method: 'PUT', body: JSON.stringify(settings) }),
+    request('/admin/settings', { method: 'POST', body: JSON.stringify(settings) }),
 };
 
 // ─── Dashboard Stats ─────────────────────────────────────────────────────────
@@ -319,11 +344,11 @@ export interface Service {
 }
 
 export const servicesApi = {
-  list: () => request<Service[]>('/services'),
+  list: () => request<Service[]>('/admin/services'),
   create: (data: Partial<Service>) =>
-    request<{ id: string }>('/services', { method: 'POST', body: JSON.stringify(data) }),
+    request<{ id: string }>('/admin/services', { method: 'POST', body: JSON.stringify(data) }),
   update: (id: string, data: Partial<Service>) =>
-    request('/services/' + id, { method: 'PUT', body: JSON.stringify(data) }),
+    request('/admin/services/' + id, { method: 'PUT', body: JSON.stringify(data) }),
   remove: (id: string) =>
-    request('/services/' + id, { method: 'DELETE' }),
+    request('/admin/services/' + id, { method: 'DELETE' }),
 };
