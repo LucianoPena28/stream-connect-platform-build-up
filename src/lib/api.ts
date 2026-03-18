@@ -344,11 +344,11 @@ export interface Service {
 }
 
 export const servicesApi = {
-  list: () => request<Service[]>('/services'),
+  list: () => request<Service[]>('/admin/services'),
   create: (data: Partial<Service>) =>
-    request<{ id: string }>('/services', { method: 'POST', body: JSON.stringify(data) }),
+    request<{ id: string }>('/admin/services', { method: 'POST', body: JSON.stringify(data) }),
   update: (id: string, data: Partial<Service>) =>
-    request('/services/' + id, { method: 'PUT', body: JSON.stringify(data) }),
+    request('/admin/services/' + id, { method: 'PUT', body: JSON.stringify(data) }),
   remove: (id: string) =>
-    request('/services/' + id, { method: 'DELETE' }),
+    request('/admin/services/' + id, { method: 'DELETE' }),
 };
