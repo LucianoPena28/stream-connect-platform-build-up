@@ -92,6 +92,8 @@ export default function AdminApiConnections() {
     try {
       await settingsApi.save({ llmconfig: JSON.stringify(config) });
       toast.success('LLM configuration saved!', { position: 'top-center' });
+      setTestResult(null);
+      await fetchStatus(true);
     } catch { toast.error('Failed to save'); }
     setSaving(false);
   };
@@ -101,12 +103,12 @@ export default function AdminApiConnections() {
     setTestResult(null);
     try {
       const res = await apiStatusApi.get();
-      setTestResult({ status: res.llm.status, models: res.llm.models });
-      const isOnline = ['connected', 'online', 'running'].includes(res.llm.status.toLowerCase());
-      if (isOnline) {
+      if (res.llm.status === 'online' || res.llm.status === 'connected') {
         toast.success('LLM connection successful!');
+        setTestResult({ status: 'connected', models: res.llm.models });
       } else {
         toast.error('LLM connection failed');
+        setTestResult({ status: 'error', models: res.llm.models ?? [] });
       }
     } catch {
       setTestResult({ status: 'error', models: [] });
@@ -227,8 +229,8 @@ export default function AdminApiConnections() {
       </div>
 
       {testResult && (
-        <div className={`mb-4 p-3 rounded-lg border text-sm ${['connected','online','running'].includes(testResult.status.toLowerCase()) ? 'bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-950 dark:border-emerald-800 dark:text-emerald-200' : 'bg-destructive/10 border-destructive/30 text-destructive'}`}>
-          {['connected','online','running'].includes(testResult.status.toLowerCase())
+        <div className={`mb-4 p-3 rounded-lg border text-sm ${testResult.status === 'connected' ? 'bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-950 dark:border-emerald-800 dark:text-emerald-200' : 'bg-destructive/10 border-destructive/30 text-destructive'}`}>
+          {testResult.status === 'connected'
             ? `✓ Connected — Models available: ${testResult.models.join(', ') || 'none'}`
             : '✗ Connection failed — check your endpoint URL and ensure the LLM server is running'}
         </div>

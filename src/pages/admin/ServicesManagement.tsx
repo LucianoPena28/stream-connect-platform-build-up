@@ -56,7 +56,7 @@ export default function AdminServicesManagement() {
       }
       setDialogOpen(false);
       fetchServices();
-    } catch { toast.error('Failed to save service'); }
+    } catch (err: any) { toast.error(err?.message || 'Failed to save service'); }
     finally { setSaving(false); }
   };
 
