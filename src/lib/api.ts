@@ -207,6 +207,12 @@ export interface ApiStatusResponse {
   backend: { status: string; port: string; version: string };
 }
 
+interface ApiStatusRaw {
+  database: { status: string; url?: string; db?: string };
+  llm: { status: string; endpoint?: string; url?: string; availableModels?: string[]; models?: string[]; model?: string };
+  backend: { status: string; port?: string; version?: string };
+}
+
 export const apiStatusApi = {
   get: () => request<ApiStatusResponse>('/admin/api-status'),
 };
