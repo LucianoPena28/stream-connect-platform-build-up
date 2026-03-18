@@ -281,9 +281,9 @@ export const employeesApi = {
 // ─── App Settings ────────────────────────────────────────────────────────────
 
 export const settingsApi = {
-  list: () => request<Array<{ key: string; value: string | null }>>('/settings'),
+  list: () => request<Array<{ key: string; value: string | null }>>('/admin/settings'),
   save: (settings: Record<string, string>) =>
-    request('/settings', { method: 'PUT', body: JSON.stringify(settings) }),
+    request('/admin/settings', { method: 'POST', body: JSON.stringify(settings) }),
 };
 
 // ─── Dashboard Stats ─────────────────────────────────────────────────────────
