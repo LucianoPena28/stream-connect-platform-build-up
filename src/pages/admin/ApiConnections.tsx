@@ -90,7 +90,7 @@ export default function AdminApiConnections() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await settingsApi.save({ llm_config: JSON.stringify(config) });
+      await settingsApi.save({ llmconfig: JSON.stringify(config) });
       toast.success('LLM configuration saved!', { position: 'top-center' });
     } catch { toast.error('Failed to save'); }
     setSaving(false);
