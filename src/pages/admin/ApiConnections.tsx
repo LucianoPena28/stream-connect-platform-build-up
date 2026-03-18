@@ -66,16 +66,18 @@ export default function AdminApiConnections() {
       const data = await settingsApi.list();
       const map: Record<string, string> = {};
       data.forEach(row => { map[row.key] = row.value || ''; });
-      if (map.llm_config) {
+      // Primary key: llmconfig (no underscore, matches DB)
+      const llmRaw = map['llmconfig'] || map['llm_config'];
+      if (llmRaw) {
         try {
-          const parsed = JSON.parse(map.llm_config);
+          const parsed = JSON.parse(llmRaw);
           setConfig(prev => ({ ...prev, ...parsed }));
         } catch { /* use defaults */ }
       }
       // Also check individual keys for backwards compat
-      if (map.llm_endpoint && !map.llm_config) setConfig(prev => ({ ...prev, endpoint: map.llm_endpoint }));
-      if (map.llm_model && !map.llm_config) setConfig(prev => ({ ...prev, model: map.llm_model }));
-      if (map.llm_system_prompt && !map.llm_config) setConfig(prev => ({ ...prev, systemPrompt: map.llm_system_prompt }));
+      if (!llmRaw && map.llm_endpoint) setConfig(prev => ({ ...prev, endpoint: map.llm_endpoint }));
+      if (!llmRaw && map.llm_model) setConfig(prev => ({ ...prev, model: map.llm_model }));
+      if (!llmRaw && map.llm_system_prompt) setConfig(prev => ({ ...prev, systemPrompt: map.llm_system_prompt }));
     } catch { /* use defaults */ }
     setConfigLoading(false);
   };
