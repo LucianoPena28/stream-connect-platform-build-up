@@ -229,8 +229,8 @@ export default function AdminApiConnections() {
       </div>
 
       {testResult && (
-        <div className={`mb-4 p-3 rounded-lg border text-sm ${['connected','online','running'].includes(testResult.status.toLowerCase()) ? 'bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-950 dark:border-emerald-800 dark:text-emerald-200' : 'bg-destructive/10 border-destructive/30 text-destructive'}`}>
-          {['connected','online','running'].includes(testResult.status.toLowerCase())
+        <div className={`mb-4 p-3 rounded-lg border text-sm ${testResult.status === 'connected' ? 'bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-950 dark:border-emerald-800 dark:text-emerald-200' : 'bg-destructive/10 border-destructive/30 text-destructive'}`}>
+          {testResult.status === 'connected'
             ? `✓ Connected — Models available: ${testResult.models.join(', ') || 'none'}`
             : '✗ Connection failed — check your endpoint URL and ensure the LLM server is running'}
         </div>
