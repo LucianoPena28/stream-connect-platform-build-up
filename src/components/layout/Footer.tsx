@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { NetflixIcon, PrimeVideoIcon, SpotifyIcon } from '@/components/icons/StreamingIcons';
 
 export function Footer() {
   return (
@@ -7,7 +8,18 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <h3 className="font-display font-bold text-lg mb-2">Stream Connect</h3>
-            <p className="text-sm text-sidebar-foreground/70">Your Digital Services Hub</p>
+            <p className="text-sm text-sidebar-foreground/70 mb-4">Your Digital Services Hub</p>
+            <div className="flex items-center gap-3">
+              <div className="rounded bg-sidebar-accent p-1.5">
+                <NetflixIcon size={20} />
+              </div>
+              <div className="rounded bg-sidebar-accent p-1.5">
+                <PrimeVideoIcon size={20} />
+              </div>
+              <div className="rounded bg-sidebar-accent p-1.5">
+                <SpotifyIcon size={20} />
+              </div>
+            </div>
           </div>
           <div>
             <h4 className="font-semibold mb-2">Quick Links</h4>

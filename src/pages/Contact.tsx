@@ -4,9 +4,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { MessageCircle, Mail, Send, Loader2, CheckCircle } from 'lucide-react';
+import { Mail, Send, Loader2, CheckCircle } from 'lucide-react';
 import { ticketsApi } from '@/lib/api';
 import { toast } from 'sonner';
+import { WhatsAppIcon } from '@/components/icons/StreamingIcons';
 
 export default function Contact() {
   const [loading, setLoading] = useState(false);
@@ -16,18 +17,27 @@ export default function Contact() {
     e.preventDefault();
     setLoading(true);
     const formData = new FormData(e.currentTarget);
+    const name = (formData.get('name') as string).trim();
+    const email = (formData.get('email') as string).trim();
+    const subject = (formData.get('subject') as string).trim();
+    const message = (formData.get('message') as string).trim();
+
+    if (!name || !email || !subject || !message) {
+      toast.error('All fields are required.', { position: 'top-center' });
+      setLoading(false);
+      return;
+    }
+
     try {
-      await ticketsApi.submitContact({
-        name: formData.get('name') as string,
-        email: formData.get('email') as string,
-        subject: formData.get('subject') as string,
-        message: formData.get('message') as string,
-      });
+      await ticketsApi.submitContact({ name, email, subject, message });
       setSubmitted(true);
-      toast.success('Message sent! We\'ll get back to you soon.', { position: 'top-center' });
-    } catch {
-      toast.error('Could not send message. Please try again.', { position: 'top-center' });
-    } finally { setLoading(false); }
+      toast.success('Thank you! Your message has been received.', { position: 'top-center' });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Could not send message. Please try again.';
+      toast.error(msg, { position: 'top-center' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const whatsappNumber = '+5016139834';
@@ -55,11 +65,11 @@ export default function Contact() {
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid sm:grid-cols-2 gap-4">
-                    <div><Label htmlFor="name">Name</Label><Input id="name" name="name" required placeholder="Your name" /></div>
-                    <div><Label htmlFor="email">Email</Label><Input id="email" name="email" type="email" required placeholder="you@example.com" /></div>
+                    <div><Label htmlFor="name">Name</Label><Input id="name" name="name" required placeholder="Your name" maxLength={100} /></div>
+                    <div><Label htmlFor="email">Email</Label><Input id="email" name="email" type="email" required placeholder="you@example.com" maxLength={255} /></div>
                   </div>
-                  <div><Label htmlFor="subject">Subject</Label><Input id="subject" name="subject" required placeholder="What's this about?" /></div>
-                  <div><Label htmlFor="message">Message</Label><Textarea id="message" name="message" required rows={4} placeholder="Tell us more..." /></div>
+                  <div><Label htmlFor="subject">Subject</Label><Input id="subject" name="subject" required placeholder="What's this about?" maxLength={200} /></div>
+                  <div><Label htmlFor="message">Message</Label><Textarea id="message" name="message" required rows={4} placeholder="Tell us more..." maxLength={2000} /></div>
                   <Button type="submit" disabled={loading} className="w-full bg-foreground text-background hover:bg-foreground/90 rounded-full font-semibold">
                     {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Send className="w-4 h-4 mr-2" />Send Message</>}
                   </Button>
@@ -72,10 +82,18 @@ export default function Contact() {
               <CardContent className="p-5">
                 <h3 className="font-display font-bold mb-4">Other ways to reach us</h3>
                 <div className="space-y-3">
-                  <a href={`https://wa.me/${whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent(waText)}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg bg-spotify/10 text-spotify hover:bg-spotify/20 transition-colors font-semibold text-sm">
-                    <MessageCircle className="h-5 w-5" />WhatsApp: +501 613-9834
+                  <a
+                    href={`https://wa.me/${whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent(waText)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 p-3 rounded-lg bg-spotify/10 text-spotify hover:bg-spotify/20 transition-colors font-semibold text-sm"
+                  >
+                    <WhatsAppIcon size={20} />WhatsApp: +501 613-9834
                   </a>
-                  <a href={`mailto:${supportEmail}?subject=Subscription%20Inquiry`} className="flex items-center gap-3 p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors font-semibold text-sm">
+                  <a
+                    href={`mailto:${supportEmail}?subject=Subscription%20Inquiry`}
+                    className="flex items-center gap-3 p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors font-semibold text-sm"
+                  >
                     <Mail className="h-5 w-5" />{supportEmail}
                   </a>
                 </div>
@@ -86,7 +104,7 @@ export default function Contact() {
                 <h3 className="font-display font-bold mb-2">Payment Options</h3>
                 <p className="text-sm text-muted-foreground">We accept:</p>
                 <ul className="mt-2 space-y-1 text-sm">
-                  <li>• Credit Card (via Shopify)</li><li>• Debit Card</li><li>• e-Kyash</li>
+                  <li>• Credit Card</li><li>• Debit Card</li><li>• e-Kyash</li>
                   <li>• DigiWallet</li><li>• Online Transfer</li><li>• OneLink</li>
                 </ul>
               </CardContent>
