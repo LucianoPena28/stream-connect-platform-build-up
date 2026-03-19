@@ -75,7 +75,9 @@ export default function AdminTickets() {
                     <TableCell className="text-xs">{ticket.source || '—'}</TableCell>
                     <TableCell>
                       <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                        ticket.status === 'open' ? 'bg-primary/30 text-primary-foreground' : 'bg-muted text-muted-foreground'
+                        ticket.status === 'open' ? 'bg-primary/30 text-primary-foreground'
+                          : ticket.status === 'in_progress' ? 'bg-accent/30 text-accent-foreground'
+                          : 'bg-muted text-muted-foreground'
                       }`}>{ticket.status}</span>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">{new Date(ticket.created_at).toLocaleDateString()}</TableCell>
