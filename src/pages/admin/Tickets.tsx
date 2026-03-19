@@ -42,6 +42,7 @@ export default function AdminTickets() {
           <SelectContent>
             <SelectItem value="all">All</SelectItem>
             <SelectItem value="open">Open</SelectItem>
+            <SelectItem value="in_progress">In Progress</SelectItem>
             <SelectItem value="closed">Closed</SelectItem>
           </SelectContent>
         </Select>
@@ -74,7 +75,9 @@ export default function AdminTickets() {
                     <TableCell className="text-xs">{ticket.source || '—'}</TableCell>
                     <TableCell>
                       <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                        ticket.status === 'open' ? 'bg-primary/30 text-primary-foreground' : 'bg-muted text-muted-foreground'
+                        ticket.status === 'open' ? 'bg-primary/30 text-primary-foreground'
+                          : ticket.status === 'in_progress' ? 'bg-accent/30 text-accent-foreground'
+                          : 'bg-muted text-muted-foreground'
                       }`}>{ticket.status}</span>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">{new Date(ticket.created_at).toLocaleDateString()}</TableCell>
@@ -83,6 +86,7 @@ export default function AdminTickets() {
                         <SelectTrigger className="w-24 h-8 text-xs"><SelectValue /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="open">Open</SelectItem>
+                          <SelectItem value="in_progress">In Progress</SelectItem>
                           <SelectItem value="closed">Closed</SelectItem>
                         </SelectContent>
                       </Select>

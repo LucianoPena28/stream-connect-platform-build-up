@@ -352,3 +352,18 @@ export const servicesApi = {
   remove: (id: string) =>
     request('/admin/services/' + id, { method: 'DELETE' }),
 };
+
+// ─── Public Services (no auth) ──────────────────────────────────────────────
+
+async function publicRequest<T = unknown>(path: string): Promise<T> {
+  const res = await fetch(`${API_BASE}${path}`, {
+    headers: { 'Content-Type': 'application/json' },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || `Request failed: ${res.status}`);
+  return data as T;
+}
+
+export const publicServicesApi = {
+  list: () => publicRequest<Service[]>('/services'),
+};
