@@ -20,7 +20,7 @@ export function SpotifyIcon({ size = 24, className = '', ...props }: IconProps) 
 }
 
 export function WhatsAppIcon({ size = 24, className = '', ...props }: IconProps) {
-  return <img src={whatsappSvg} alt="WhatsApp" width={size} height={size} className={`inline-block ${className}`} {...props} />;
+  return <img src={whatsappSvg} alt="WhatsApp" width={size} height={size} className={`inline-block text-foreground dark:text-emerald-400 ${className}`} style={{ filter: 'var(--whatsapp-filter, none)' }} {...props} />;
 }
 
 /** Returns the appropriate icon component for a service category/name */
