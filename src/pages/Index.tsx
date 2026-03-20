@@ -65,14 +65,14 @@ export default function Index() {
 
               {/* Brand logo row */}
               <div className="flex items-center gap-4 mb-8">
-                <div className="rounded-lg bg-white/10 backdrop-blur p-2 border border-white/20">
-                  <NetflixIcon size={32} />
+                <div className="rounded-xl bg-white backdrop-blur p-3 border border-white/30 shadow-md">
+                  <NetflixIcon size={40} />
                 </div>
-                <div className="rounded-lg bg-white/10 backdrop-blur p-2 border border-white/20">
-                  <PrimeVideoIcon size={32} />
+                <div className="rounded-xl bg-white backdrop-blur p-3 border border-white/30 shadow-md">
+                  <PrimeVideoIcon size={40} />
                 </div>
-                <div className="rounded-lg bg-white/10 backdrop-blur p-2 border border-white/20">
-                  <SpotifyIcon size={32} />
+                <div className="rounded-xl bg-white backdrop-blur p-3 border border-white/30 shadow-md">
+                  <SpotifyIcon size={40} />
                 </div>
               </div>
 
@@ -90,8 +90,8 @@ export default function Index() {
               <Link to="/services">
                 <Card className="bg-netflix text-netflix-foreground border-0 shadow-xl overflow-hidden hover:scale-[1.02] transition-transform cursor-pointer">
                   <CardContent className="p-5 flex items-center gap-4">
-                    <div className="rounded-lg bg-white/20 p-1.5">
-                      <NetflixIcon size={32} />
+                    <div className="rounded-xl bg-white p-2.5 shadow-sm">
+                      <NetflixIcon size={38} />
                     </div>
                     <div>
                       <h3 className="font-display font-bold text-lg">Netflix accounts available</h3>
@@ -104,8 +104,8 @@ export default function Index() {
               <Link to="/services">
                 <Card className="bg-sidebar text-sidebar-foreground border-0 shadow-xl overflow-hidden hover:scale-[1.02] transition-transform cursor-pointer mt-4">
                   <CardContent className="p-5 flex items-center gap-4">
-                    <div className="rounded-lg bg-white/20 p-1.5">
-                      <PrimeVideoIcon size={32} />
+                    <div className="rounded-xl bg-white p-2.5 shadow-sm">
+                      <PrimeVideoIcon size={38} />
                     </div>
                     <div>
                       <h3 className="font-display font-bold text-lg">Prime Video plans</h3>
@@ -118,8 +118,8 @@ export default function Index() {
               <Link to="/services">
                 <Card className="bg-spotify text-spotify-foreground border-0 shadow-xl overflow-hidden hover:scale-[1.02] transition-transform cursor-pointer mt-4">
                   <CardContent className="p-5 flex items-center gap-4">
-                    <div className="rounded-lg bg-white/20 p-1.5">
-                      <SpotifyIcon size={32} />
+                    <div className="rounded-xl bg-white p-2.5 shadow-sm">
+                      <SpotifyIcon size={38} />
                     </div>
                     <div>
                       <h3 className="font-display font-bold text-lg">Spotify Premium</h3>
