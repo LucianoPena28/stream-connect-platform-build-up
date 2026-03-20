@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,7 +29,7 @@ interface LlmConfig {
 }
 
 const defaultConfig: LlmConfig = {
-  endpoint: 'http://10.0.0.39:11434/api/chat',
+  endpoint: 'http://10.0.0.39:11434',
   apiKey: '',
   model: 'tinyllama:latest',
   maxTokens: '512',
@@ -43,9 +43,11 @@ export default function AdminApiConnections() {
   const [refreshing, setRefreshing] = useState(false);
   const [config, setConfig] = useState<LlmConfig>(defaultConfig);
   const [configLoading, setConfigLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [savingConnection, setSavingConnection] = useState(false);
+  const [savingPrompt, setSavingPrompt] = useState(false);
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState<{ status: string; models: string[] } | null>(null);
+  const backendLoaded = useRef(false);
 
   const fetchStatus = async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true); else setStatusLoading(true);
@@ -66,19 +68,31 @@ export default function AdminApiConnections() {
       const data = await settingsApi.list();
       const map: Record<string, string> = {};
       data.forEach(row => { map[row.key] = row.value || ''; });
-      // Primary key: llmconfig (no underscore, matches DB)
+
       const llmRaw = map['llmconfig'] || map['llm_config'];
       if (llmRaw) {
         try {
           const parsed = JSON.parse(llmRaw);
-          setConfig(prev => ({ ...prev, ...parsed }));
-        } catch { /* use defaults */ }
+          // Fully replace config with backend values, filling gaps from default
+          setConfig({
+            endpoint: parsed.endpoint || defaultConfig.endpoint,
+            apiKey: parsed.apiKey || defaultConfig.apiKey,
+            model: parsed.model || defaultConfig.model,
+            maxTokens: parsed.maxTokens || defaultConfig.maxTokens,
+            temperature: parsed.temperature || defaultConfig.temperature,
+            systemPrompt: parsed.systemPrompt ?? defaultConfig.systemPrompt,
+          });
+          backendLoaded.current = true;
+        } catch { /* malformed JSON, keep defaults */ }
       }
-      // Also check individual keys for backwards compat
-      if (!llmRaw && map.llm_endpoint) setConfig(prev => ({ ...prev, endpoint: map.llm_endpoint }));
-      if (!llmRaw && map.llm_model) setConfig(prev => ({ ...prev, model: map.llm_model }));
-      if (!llmRaw && map.llm_system_prompt) setConfig(prev => ({ ...prev, systemPrompt: map.llm_system_prompt }));
-    } catch { /* use defaults */ }
+
+      // Backwards compat: individual keys only if no llmconfig found
+      if (!backendLoaded.current) {
+        if (map.llm_endpoint) setConfig(prev => ({ ...prev, endpoint: map.llm_endpoint }));
+        if (map.llm_model) setConfig(prev => ({ ...prev, model: map.llm_model }));
+        if (map.llm_system_prompt) setConfig(prev => ({ ...prev, systemPrompt: map.llm_system_prompt }));
+      }
+    } catch { /* network error, keep defaults */ }
     setConfigLoading(false);
   };
 
@@ -87,15 +101,23 @@ export default function AdminApiConnections() {
     fetchConfig();
   }, []);
 
-  const handleSave = async () => {
-    setSaving(true);
+  const saveConfig = async (type: 'connection' | 'prompt') => {
+    const setter = type === 'connection' ? setSavingConnection : setSavingPrompt;
+    setter(true);
     try {
-      await settingsApi.save({ llmconfig: JSON.stringify(config) });
-      toast.success('LLM configuration saved!', { position: 'top-center' });
+      const payload = JSON.stringify(config);
+      // Write to both keys to keep them in sync
+      await settingsApi.save({ llmconfig: payload, llm_config: payload });
+      toast.success(
+        type === 'connection' ? 'Connection settings saved!' : 'System prompt saved!',
+        { position: 'top-center' },
+      );
       setTestResult(null);
       await fetchStatus(true);
-    } catch { toast.error('Failed to save'); }
-    setSaving(false);
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to save');
+    }
+    setter(false);
   };
 
   const handleTest = async () => {
@@ -215,17 +237,14 @@ export default function AdminApiConnections() {
       <Separator className="mb-8" />
 
       {/* ─── LLM Configuration Form ──────────────────────────────────────── */}
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="font-display text-xl font-bold">LLM Configuration</h2>
-        <div className="flex gap-2">
-          <Button onClick={handleTest} disabled={testing} variant="outline" size="sm">
-            {testing ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Wifi className="w-4 h-4 mr-1" />}
-            Test Connection
-          </Button>
-          <Button onClick={handleSave} disabled={saving || configLoading} size="sm" className="bg-foreground text-background">
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Save className="w-4 h-4 mr-1" />Save</>}
-          </Button>
-        </div>
+      <h2 className="font-display text-xl font-bold mb-4">LLM Configuration</h2>
+
+      {/* Test connection banner */}
+      <div className="flex gap-2 mb-4">
+        <Button onClick={handleTest} disabled={testing} variant="outline" size="sm">
+          {testing ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Wifi className="w-4 h-4 mr-1" />}
+          Test Connection
+        </Button>
       </div>
 
       {testResult && (
@@ -241,8 +260,11 @@ export default function AdminApiConnections() {
       ) : (
         <div className="grid gap-6">
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="font-display text-lg">Connection Settings</CardTitle>
+              <Button onClick={() => saveConfig('connection')} disabled={savingConnection} size="sm" className="bg-foreground text-background">
+                {savingConnection ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Save className="w-4 h-4 mr-1" />Save Connection Settings</>}
+              </Button>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid sm:grid-cols-2 gap-4">
@@ -251,7 +273,7 @@ export default function AdminApiConnections() {
                   <Input
                     value={config.endpoint}
                     onChange={e => updateConfig('endpoint', e.target.value)}
-                    placeholder="http://10.0.0.39:11434/api/chat"
+                    placeholder="http://10.0.0.39:11434"
                   />
                   <p className="text-xs text-muted-foreground mt-1">Ollama, vLLM, or OpenAI-compatible endpoint</p>
                 </div>
@@ -301,8 +323,11 @@ export default function AdminApiConnections() {
           </Card>
 
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="font-display text-lg">System Prompt</CardTitle>
+              <Button onClick={() => saveConfig('prompt')} disabled={savingPrompt} size="sm" className="bg-foreground text-background">
+                {savingPrompt ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Save className="w-4 h-4 mr-1" />Save System Prompt</>}
+              </Button>
             </CardHeader>
             <CardContent>
               <Textarea
