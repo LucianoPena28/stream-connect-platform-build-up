@@ -124,7 +124,3 @@
   }
 }
 
-/* WhatsApp icon: green tint in dark mode */
-.dark .whatsapp-green {
-  filter: invert(55%) sepia(75%) saturate(500%) hue-rotate(100deg) brightness(1.1);
-}

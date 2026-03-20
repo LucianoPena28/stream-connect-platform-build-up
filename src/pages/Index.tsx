@@ -118,8 +118,8 @@ export default function Index() {
               <Link to="/services">
                 <Card className="bg-spotify text-spotify-foreground border-0 shadow-xl overflow-hidden hover:scale-[1.02] transition-transform cursor-pointer mt-4">
                   <CardContent className="p-5 flex items-center gap-4">
-                    <div className="rounded-lg bg-white/20 p-1.5">
-                      <SpotifyIcon size={32} />
+                    <div className="rounded-xl bg-white p-2.5 shadow-sm">
+                      <SpotifyIcon size={38} />
                     </div>
                     <div>
                       <h3 className="font-display font-bold text-lg">Spotify Premium</h3>
