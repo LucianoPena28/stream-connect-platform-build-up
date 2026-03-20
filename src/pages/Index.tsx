@@ -65,13 +65,13 @@ export default function Index() {
 
               {/* Brand logo row */}
               <div className="flex items-center gap-4 mb-8">
-                <div className="rounded-xl bg-white backdrop-blur p-3 border border-white/30 shadow-md">
+                <div className="rounded-xl bg-white/10 backdrop-blur p-3 border border-white/20">
                   <NetflixIcon size={40} />
                 </div>
-                <div className="rounded-xl bg-white backdrop-blur p-3 border border-white/30 shadow-md">
-                  <PrimeVideoIcon size={40} />
+                <div className="rounded-xl bg-white/10 backdrop-blur p-3 border border-white/20">
+                  <PrimeVideoIcon size={48} />
                 </div>
-                <div className="rounded-xl bg-white backdrop-blur p-3 border border-white/30 shadow-md">
+                <div className="rounded-xl bg-white/10 backdrop-blur p-3 border border-white/20">
                   <SpotifyIcon size={40} />
                 </div>
               </div>
