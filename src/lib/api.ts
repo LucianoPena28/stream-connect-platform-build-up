@@ -77,6 +77,13 @@ export const authApi = {
       method: 'POST',
       body: JSON.stringify({ token, newPassword }),
     }),
+
+  /** Verify password (+ optional OTP) for step-up auth */
+  verifyPassword: (password: string, otp_code?: string) =>
+    request<{ valid: boolean }>('/auth/verify-password', {
+      method: 'POST',
+      body: JSON.stringify({ password, otp_code }),
+    }),
 };
 
 // ─── Profiles ────────────────────────────────────────────────────────────────
@@ -107,6 +114,8 @@ export interface Subscription {
   started_at: string;
   expires_at: string | null;
   service_id: string | null;
+  resolved_service_name?: string | null;
+  service_description?: string | null;
 }
 
 export const subscriptionsApi = {
@@ -176,6 +185,7 @@ export interface ServiceCredential {
   notes: string | null;
   created_at: string;
   updated_at: string;
+  has_password?: boolean;
 }
 
 export const credentialsApi = {
@@ -197,6 +207,16 @@ export const credentialsApi = {
 
   // Customer-facing endpoints
   mine: () => request<ServiceCredential[]>('/account/credentials'),
+
+  // Step-up verification to reveal a credential's password
+  reveal: (credentialId: string, password: string, otpCode?: string) =>
+    request<{ id: string; service_name: string; username: string | null; password: string | null; notes: string | null }>(
+      '/account/credentials/verify',
+      {
+        method: 'POST',
+        body: JSON.stringify({ credential_id: credentialId, password, otp_code: otpCode }),
+      }
+    ),
 };
 
 // ─── API Status ──────────────────────────────────────────────────────────────
@@ -265,7 +285,10 @@ export interface Employee {
   role: 'admin' | 'support';
   email: string | null;
   full_name: string | null;
+  phone: string | null;
   created_at: string;
+  user_created_at?: string;
+  user_updated_at?: string;
 }
 
 export const employeesApi = {

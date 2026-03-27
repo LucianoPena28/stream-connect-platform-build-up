@@ -8,6 +8,7 @@ import { Loader2, Shield, ShieldCheck, ShieldOff, Copy, ArrowLeft, RefreshCw, Ke
 import { useAuth } from '@/hooks/useAuth';
 import { authApi, totpApi } from '@/lib/api';
 import { toast } from 'sonner';
+import { QRCodeSVG } from 'qrcode.react';
 
 export default function AccountSecurity() {
   const { user, isLoading: authLoading } = useAuth();
@@ -31,8 +32,14 @@ export default function AccountSecurity() {
 
   const startSetup = async () => {
     setActionLoading(true);
-    const data = await totpApi.setup();
-    setTotpUri(data.uri); setTotpSecret(data.secret); setSetupStep('qr');
+    try {
+      const data = await totpApi.setup();
+      setTotpUri(data.uri);
+      setTotpSecret(data.secret);
+      setSetupStep('qr');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to start 2FA setup');
+    }
     setActionLoading(false);
   };
 
@@ -136,16 +143,30 @@ export default function AccountSecurity() {
                 </Button>
               ) : setupStep === 'qr' ? (
                 <div className="space-y-4">
-                  <p className="text-sm">Open your authenticator app and add this account manually:</p>
-                  <div className="p-3 rounded-lg bg-muted">
-                    <Label className="text-xs text-muted-foreground">Secret Key</Label>
-                    <div className="flex items-center gap-2 mt-1">
-                      <code className="text-sm font-mono break-all flex-1">{totpSecret}</code>
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => copyToClipboard(totpSecret)}><Copy className="w-3 h-3" /></Button>
+                  <p className="text-sm">Scan this QR code with your authenticator app (Google Authenticator, Microsoft Authenticator, Authy, etc.):</p>
+
+                  {/* QR Code */}
+                  <div className="flex justify-center">
+                    <div className="p-4 bg-white rounded-xl shadow-sm border">
+                      <QRCodeSVG value={totpUri} size={200} level="M" />
                     </div>
                   </div>
-                  <p className="text-xs text-muted-foreground">Or scan this URI: <code className="break-all">{totpUri}</code></p>
-                  <Button onClick={() => setSetupStep('verify')} className="bg-primary text-primary-foreground">I've added it → Verify</Button>
+
+                  {/* Manual entry fallback */}
+                  <details className="text-sm">
+                    <summary className="cursor-pointer text-muted-foreground hover:text-foreground transition-colors">
+                      Can't scan? Enter the secret key manually
+                    </summary>
+                    <div className="mt-2 p-3 rounded-lg bg-muted">
+                      <Label className="text-xs text-muted-foreground">Secret Key</Label>
+                      <div className="flex items-center gap-2 mt-1">
+                        <code className="text-sm font-mono break-all flex-1">{totpSecret}</code>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => copyToClipboard(totpSecret)}><Copy className="w-3 h-3" /></Button>
+                      </div>
+                    </div>
+                  </details>
+
+                  <Button onClick={() => setSetupStep('verify')} className="bg-primary text-primary-foreground">I've scanned it → Verify</Button>
                 </div>
               ) : setupStep === 'verify' ? (
                 <div className="space-y-4">
