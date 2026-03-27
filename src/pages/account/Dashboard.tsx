@@ -4,15 +4,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, Shield, Package, Settings, LogOut, ArrowUpDown, Save, KeyRound } from 'lucide-react';
+import { Loader2, Shield, Package, Settings, LogOut, ArrowUpDown, Save, KeyRound, Eye } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { profilesApi, subscriptionsApi, type Profile, type Subscription } from '@/lib/api';
+import { profilesApi, subscriptionsApi, credentialsApi, type Profile, type Subscription, type ServiceCredential } from '@/lib/api';
 import { toast } from 'sonner';
 
 export default function AccountDashboard() {
   const { user, signOut, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [credentials, setCredentials] = useState<ServiceCredential[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [editName, setEditName] = useState('');
@@ -25,9 +26,14 @@ export default function AccountDashboard() {
 
   const loadData = async () => {
     try {
-      const [subs, prof] = await Promise.all([subscriptionsApi.mine(), profilesApi.get()]);
+      const [subs, prof, creds] = await Promise.all([
+        subscriptionsApi.mine(),
+        profilesApi.get(),
+        credentialsApi.mine(),
+      ]);
       setSubscriptions(subs);
       setProfile(prof);
+      setCredentials(creds);
       setEditName(prof.full_name || '');
     } catch { /* ignore */ }
     setLoading(false);
@@ -48,6 +54,9 @@ export default function AccountDashboard() {
   if (authLoading || loading) {
     return <main className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></main>;
   }
+
+  const hasSubscriptions = subscriptions.length > 0;
+  const hasCredentials = credentials.length > 0;
 
   return (
     <main className="min-h-screen bg-background py-10">
@@ -90,7 +99,7 @@ export default function AccountDashboard() {
           <Card>
             <CardHeader><CardTitle className="font-display text-lg flex items-center gap-2"><Package className="w-5 h-5" />My Subscriptions</CardTitle></CardHeader>
             <CardContent>
-              {subscriptions.length === 0 ? (
+              {!hasSubscriptions ? (
                 <div className="text-center py-8">
                   <p className="text-muted-foreground mb-4">You don't have any active subscriptions yet.</p>
                   <Button asChild className="bg-primary text-primary-foreground"><Link to="/services">Browse Plans</Link></Button>
@@ -100,7 +109,8 @@ export default function AccountDashboard() {
                   {subscriptions.map(sub => (
                     <div key={sub.id} className="flex items-center justify-between p-4 rounded-lg border bg-card">
                       <div>
-                        <h4 className="font-semibold">{sub.service_name}</h4>
+                        <h4 className="font-semibold">{sub.resolved_service_name || sub.service_name}</h4>
+                        {sub.service_description && <p className="text-xs text-muted-foreground">{sub.service_description}</p>}
                         <p className="text-sm text-muted-foreground">${sub.price_bzd} BZD / {sub.billing_period}</p>
                         <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                           sub.status === 'active' ? 'bg-spotify/20 text-spotify' :
@@ -109,6 +119,41 @@ export default function AccountDashboard() {
                         }`}>{sub.status}</span>
                       </div>
                       <Button variant="outline" size="sm" asChild><Link to="/contact"><ArrowUpDown className="w-3 h-3 mr-1" />Change Plan</Link></Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Credentials summary — linked to full credentials page */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="font-display text-lg flex items-center gap-2">
+                <KeyRound className="w-5 h-5" />Service Credentials
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {!hasCredentials ? (
+                <div className="text-center py-6">
+                  <KeyRound className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                  {hasSubscriptions ? (
+                    <p className="text-muted-foreground text-sm">Your subscription credentials have not been set up yet. Please contact support.</p>
+                  ) : (
+                    <p className="text-muted-foreground text-sm">No service credentials available. Subscribe to a service to get started.</p>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {credentials.map(cred => (
+                    <div key={cred.id} className="flex items-center justify-between p-3 rounded-lg border bg-card">
+                      <div>
+                        <p className="font-medium text-sm">{cred.service_name}</p>
+                        <p className="text-xs text-muted-foreground">{cred.username || 'No username set'}</p>
+                      </div>
+                      <Button variant="outline" size="sm" asChild>
+                        <Link to="/account/credentials"><Eye className="w-3 h-3 mr-1" />View</Link>
+                      </Button>
                     </div>
                   ))}
                 </div>

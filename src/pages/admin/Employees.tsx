@@ -3,8 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, UserPlus, Trash2, Shield, ShieldCheck } from 'lucide-react';
+import { Loader2, UserPlus, Trash2, Shield, ShieldCheck, Mail, Phone } from 'lucide-react';
 import { employeesApi, type Employee } from '@/lib/api';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
@@ -25,7 +26,10 @@ export default function AdminEmployees() {
     try {
       const data = await employeesApi.list();
       setEmployees(data);
-    } catch { /* ignore */ }
+    } catch (err: any) {
+      console.error('[employees] load error:', err);
+      toast.error('Failed to load employees');
+    }
     setLoading(false);
   };
 
@@ -110,8 +114,14 @@ export default function AdminEmployees() {
                         {emp.role === 'admin' ? <ShieldCheck className="h-4 w-4" /> : <Shield className="h-4 w-4" />}
                       </div>
                       <div>
-                        <p className="font-medium text-sm">{emp.full_name || 'Unknown'}</p>
-                        <p className="text-xs text-muted-foreground">{emp.email || emp.user_id}</p>
+                        <p className="font-medium text-sm">{emp.full_name || '—'}</p>
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                          {emp.email && <span className="flex items-center gap-1"><Mail className="w-3 h-3" />{emp.email}</span>}
+                          {emp.phone && <span className="flex items-center gap-1"><Phone className="w-3 h-3" />{emp.phone}</span>}
+                        </div>
+                        <Badge variant={emp.role === 'admin' ? 'default' : 'secondary'} className="mt-1 text-[10px]">
+                          {emp.role}
+                        </Badge>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
