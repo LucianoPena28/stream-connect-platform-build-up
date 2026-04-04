@@ -41,8 +41,8 @@ export default function AdminAiOperations() {
     setLoading(true);
     setResponse(null);
     try {
-      const data = await adminOpsApi.prompt(prompt.trim());
-      setResponse(data);
+      const raw = await adminOpsApi.prompt(prompt.trim());
+      setResponse({ content: raw.response, model: raw.model, hasProposedActions: raw.hasProposedActions, timestamp: raw.timestamp });
       setTimeout(() => responseRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
     } catch (err: any) {
       toast.error(err.message || 'AI request failed');
