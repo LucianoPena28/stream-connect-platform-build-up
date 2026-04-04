@@ -351,6 +351,25 @@ export const chatApi = {
     request<{ reply: string }>('/chat', { method: 'POST', body: JSON.stringify({ message }) }),
 };
 
+// ─── Admin AI Operations ─────────────────────────────────────────────────────
+
+export const adminOpsApi = {
+  prompt: (prompt: string, model?: string, context?: any) =>
+    request<{ response: string; model: string; hasProposedActions: boolean; timestamp: string }>(
+      '/admin/ops/prompt', { method: 'POST', body: JSON.stringify({ prompt, model, context }) }
+    ),
+  approve: (actionId: string, actionDescription: string) =>
+    request<{ status: string; message: string }>('/admin/ops/approve', {
+      method: 'POST', body: JSON.stringify({ actionId, actionDescription }),
+    }),
+  auditLog: (limit = 50, offset = 0) =>
+    request<{ entries: any[]; total: number }>(`/admin/ops/audit-log?limit=${limit}&offset=${offset}`),
+  health: () => request<any>('/admin/ops/health'),
+  security: () => request<any>('/admin/ops/security'),
+  n8nTrigger: (workflow: string, payload?: any) =>
+    request<any>('/admin/ops/n8n/trigger', { method: 'POST', body: JSON.stringify({ workflow, payload }) }),
+};
+
 // ─── Services (Admin CRUD) ───────────────────────────────────────────────────
 
 export interface Service {
