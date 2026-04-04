@@ -25,6 +25,8 @@ import AdminTickets from "./pages/admin/Tickets";
 import AdminEmployees from "./pages/admin/Employees";
 import AdminServicesManagement from "./pages/admin/ServicesManagement";
 import AdminApiConnections from "./pages/admin/ApiConnections";
+import AdminAiOperations from "./pages/admin/AiOperations";
+import AdminMonitoring from "./pages/admin/Monitoring";
 import AdminSettings from "./pages/admin/Settings";
 import AccountLogin from "./pages/account/Login";
 import AccountRegister from "./pages/account/Register";
