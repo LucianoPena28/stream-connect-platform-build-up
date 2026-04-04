@@ -13,6 +13,8 @@ const navItems = [
   { to: '/admin/services', icon: Package, label: 'Services' },
   { to: '/admin/employees', icon: UserCog, label: 'Employees' },
   { to: '/admin/api', icon: Plug, label: 'API Connections' },
+  { to: '/admin/ai-ops', icon: Bot, label: 'AI Operations' },
+  { to: '/admin/monitoring', icon: Activity, label: 'Monitoring' },
   { to: '/admin/settings', icon: Settings, label: 'Settings' },
 ];
 

@@ -70,6 +70,8 @@ function AppContent() {
         <Route path="/admin/employees" element={<AdminLayout><AdminEmployees /></AdminLayout>} />
         <Route path="/admin/services" element={<AdminLayout><AdminServicesManagement /></AdminLayout>} />
         <Route path="/admin/api" element={<AdminLayout><AdminApiConnections /></AdminLayout>} />
+        <Route path="/admin/ai-ops" element={<AdminLayout><AdminAiOperations /></AdminLayout>} />
+        <Route path="/admin/monitoring" element={<AdminLayout><AdminMonitoring /></AdminLayout>} />
         <Route path="/admin/settings" element={<AdminLayout><AdminSettings /></AdminLayout>} />
 
         <Route path="*" element={<NotFound />} />
