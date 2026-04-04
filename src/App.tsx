@@ -25,6 +25,8 @@ import AdminTickets from "./pages/admin/Tickets";
 import AdminEmployees from "./pages/admin/Employees";
 import AdminServicesManagement from "./pages/admin/ServicesManagement";
 import AdminApiConnections from "./pages/admin/ApiConnections";
+import AdminAiOperations from "./pages/admin/AiOperations";
+import AdminMonitoring from "./pages/admin/Monitoring";
 import AdminSettings from "./pages/admin/Settings";
 import AccountLogin from "./pages/account/Login";
 import AccountRegister from "./pages/account/Register";
@@ -68,6 +70,8 @@ function AppContent() {
         <Route path="/admin/employees" element={<AdminLayout><AdminEmployees /></AdminLayout>} />
         <Route path="/admin/services" element={<AdminLayout><AdminServicesManagement /></AdminLayout>} />
         <Route path="/admin/api" element={<AdminLayout><AdminApiConnections /></AdminLayout>} />
+        <Route path="/admin/ai-ops" element={<AdminLayout><AdminAiOperations /></AdminLayout>} />
+        <Route path="/admin/monitoring" element={<AdminLayout><AdminMonitoring /></AdminLayout>} />
         <Route path="/admin/settings" element={<AdminLayout><AdminSettings /></AdminLayout>} />
 
         <Route path="*" element={<NotFound />} />
